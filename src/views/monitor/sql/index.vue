@@ -69,7 +69,7 @@ import { usePageUi } from '@/composables/usePageUi'
 import { cleanSqlMonitor, getSqlMonitor, removeSqlRecord } from '@/api/monitor'
 import { formatDateTime } from '@/utils/datetime'
 
-/** 权限内容：sql:view/update/delete；table-view/table-edit/table-delete */
+/** 权限内容：sql:view/delete；table-view/table-delete */
 const columns = [
   { type: 'selection', width: 50, fixed: true },
   { type: 'slot', slot: 'executedAt', prop: 'executedAt', label: '执行时间', width: 170 },

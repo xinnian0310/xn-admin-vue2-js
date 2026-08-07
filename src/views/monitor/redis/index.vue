@@ -63,7 +63,7 @@ import xnTable from '@/components/xnTable/xnTable.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { deleteRedisKey, flushRedis, getRedisMonitor } from '@/api/monitor'
 
-/** 权限内容：redis:view/update/delete；table-view/table-edit/table-delete */
+/** 权限内容：redis:view/delete；table-view/table-delete */
 const columns = [
   { type: 'selection', width: 50, fixed: true },
   { prop: 'key', label: 'Key', minWidth: 280, showOverflowTooltip: true },

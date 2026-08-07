@@ -1,6 +1,8 @@
-# xn-admin-vue3(2写法)-js
+# xn-admin-vue2-js
 
 心念后台管理系统前端：Vue 3 + **JavaScript** + Vite + Element Plus（**Options API**：`data` / `methods` / `computed` / `watch`）。
+
+目录名 `vue2-js` 表示「第二套 JS 写法」（Options），不是 Vue 2 运行时。`package.json` 的 `name` 为 `xn-admin-vue3-options-js`；对外 `APP_CLIENT_ID` 为 `xn-admin-vue2-js`。
 
 功能与 [`xn-admin-vue3-ts`](../xn-admin-vue3-ts/) 对齐，共用微服务后端 [`xn-admin-cloud`](../xn-admin-cloud/)（网关 `8088`）。同步范围见 [`../docs/PRD-xn-admin-frontend-sync.md`](../docs/PRD-xn-admin-frontend-sync.md)。
 
@@ -9,7 +11,7 @@
 ## 前提
 
 1. Node.js 20+（见 `.nvmrc`）
-2. 后端已启动，网关可访问：http://localhost:8088  
+2. 后端已启动，网关可访问：http://127.0.0.1:8088  
    （同级目录一般为 [`../xn-admin-cloud`](../xn-admin-cloud/)，按其 README 启动 system / file / log / job / gateway）
 3. MySQL / Redis / Nacos 等中间件已就绪
 
@@ -31,7 +33,7 @@ npm install           # 安装依赖
 npm run dev           # 启动开发服务
 ```
 
-开发地址：http://localhost:1802（与基准 `5173` / vue3-js `1801` 错开，便于同时联调；PRD 建议端口为 `5175`）
+开发地址：http://localhost:1801（与 react-ts `1800` / vue3-js `1802` / vue3-ts `1803` 错开，便于同时联调）
 
 Vite 已代理到网关：
 
@@ -64,6 +66,8 @@ npm run ci            # 全量检查：lint + format:check + test + build
 
 提交前会经 Husky 跑 lint-staged（ESLint 修复 + Prettier 格式化）；提交信息需符合 [Conventional Commits](https://www.conventionalcommits.org/)（如 `feat: xxx`）。约定详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
+在 Cursor / VS Code 中打开本仓库并安装推荐扩展后：**保存文件会自动 Prettier 格式化，并执行 ESLint 可自动修复项**（见 `.vscode/settings.json`）。
+
 ## 技术栈
 
 | 类别          | 技术                                                     |
@@ -81,8 +85,8 @@ npm run ci            # 全量检查：lint + format:check + test + build
 
 - 语言：TypeScript → JavaScript（同 vue3-js）
 - 组件写法：Composition `<script setup>` → **Options API**（`export default { name, components, props, data, computed, watch, methods, … }`）
-- `APP_CLIENT_ID`：`xn-admin-vue3-options-js`（目录名含括号，API 用无括号 id）
-- 开发端口：`1802`（vue3-js 为 `1801`）
+- `APP_CLIENT_ID`：`xn-admin-vue2-js`（`src/config/client.js`）；npm `name` 为 `xn-admin-vue3-options-js`
+- 开发端口：`1801`（vue3-js 为 `1802`）
 - 可复用 vue3-js 的 `api` / `utils`；页面与组件脚本按 Options 重写
 - 无 `vue-tsc` / `typecheck`；功能与后端契约与基准一致
 
@@ -102,6 +106,128 @@ src/
 ├── utils/          # request、icons、excel、download、route-register…
 └── views/          # 业务页面（含 system/logs/{login,oper,exception}）
 ```
+
+## 通用组件
+
+每个组件目录下有独立文档，入口如下：
+
+| 组件           | 说明                                | 文档                                                |
+| -------------- | ----------------------------------- | --------------------------------------------------- |
+| xnAppIcon      | 统一图标（Element / Iconify / SVG） | [README](./src/components/xnAppIcon/README.md)      |
+| xnAppBrandLogo | 品牌 Logo                           | [README](./src/components/xnAppBrandLogo/README.md) |
+| xnIconPicker   | 图标选择器                          | [README](./src/components/xnIconPicker/README.md)   |
+| xnNoticeInbox  | 消息中心抽屉                        | [README](./src/components/xnNoticeInbox/README.md)  |
+| xnPageLayout   | 列表页骨架                          | [README](./src/components/xnPageLayout/README.md)   |
+| xnRichEditor   | 富文本编辑器                        | [README](./src/components/xnRichEditor/README.md)   |
+| xnSidebarMenu  | 多级菜单                            | [README](./src/components/xnSidebarMenu/README.md)  |
+| xnTagsView     | 页面标签栏                          | [README](./src/components/xnTagsView/README.md)     |
+| xnThemePicker  | 主题设置                            | [README](./src/components/xnThemePicker/README.md)  |
+| xnTreePanel    | 左侧树面板                          | [README](./src/components/xnTreePanel/README.md)    |
+| xnButton       | 工具栏 / 行操作按钮                 | [README](./src/components/xnButton/README.md)       |
+| xnImport       | Excel 导入对话框                    | [README](./src/components/xnImport/README.md)       |
+| xnLongText     | 长文本截断 + 点击弹窗查看           | [README](./src/components/xnLongText/README.md)     |
+| xnSearch       | 配置化搜索表单                      | [README](./src/components/xnSearch/README.md)       |
+| xnTable        | 配置化表格                          | [README](./src/components/xnTable/README.md)        |
+
+典型列表页组合：
+
+```
+xnPageLayout
+├── #aside → xnTreePanel（可选）
+├── #search → xnSearch
+├── #toolbar → xnButton
+└── #table → xnTable
+```
+
+配置通常来自后端 page-ui（`usePageUi`，于 `setup()` 返回）与路由权限。
+
+## 界面预览
+
+截图放在 [`docs/images/`](./docs/images/)，命名与基准 [`xn-admin-vue3-ts`](../xn-admin-vue3-ts/) 一致。
+
+### 登录与首页
+
+| 模块   | 截图                                 |
+| ------ | ------------------------------------ |
+| 登录页 | ![登录页](./docs/images/login.png)   |
+| 首页   | ![首页](./docs/images/dashboard.png) |
+
+### 个人中心
+
+| 模块     | 截图                                         |
+| -------- | -------------------------------------------- |
+| 个人信息 | ![个人信息](./docs/images/profile.png)       |
+| 我的消息 | ![我的消息](./docs/images/messages-mine.png) |
+
+### 系统监控
+
+| 模块     | 截图                                          |
+| -------- | --------------------------------------------- |
+| 在线用户 | ![在线用户](./docs/images/monitor-online.png) |
+| 服务监控 | ![服务监控](./docs/images/monitor-server.png) |
+| 缓存监控 | ![缓存监控](./docs/images/monitor-redis.png)  |
+| SQL 监控 | ![SQL 监控](./docs/images/monitor-sql.png)    |
+
+### 日志管理
+
+| 模块     | 截图                                          |
+| -------- | --------------------------------------------- |
+| 登录日志 | ![登录日志](./docs/images/logs-login.png)     |
+| 操作日志 | ![操作日志](./docs/images/logs-oper.png)      |
+| 异常日志 | ![异常日志](./docs/images/logs-exception.png) |
+
+### 组织与账号
+
+| 模块     | 截图                                 |
+| -------- | ------------------------------------ |
+| 用户管理 | ![用户管理](./docs/images/users.png) |
+| 单位管理 | ![单位管理](./docs/images/units.png) |
+| 岗位管理 | ![岗位管理](./docs/images/posts.png) |
+
+### 权限与安全
+
+| 模块     | 截图                                               |
+| -------- | -------------------------------------------------- |
+| 角色列表 | ![角色列表](./docs/images/roles.png)               |
+| 角色权限 | ![角色权限](./docs/images/permissions.png)         |
+| 权限内容 | ![权限内容](./docs/images/permissions-content.png) |
+| 路由管理 | ![路由管理](./docs/images/routes.png)              |
+
+### 内容运营
+
+| 模块     | 截图                                   |
+| -------- | -------------------------------------- |
+| 公告管理 | ![公告管理](./docs/images/notices.png) |
+| 站内信   | ![站内信](./docs/images/messages.png)  |
+
+### 基础数据与系统设置
+
+| 模块       | 截图                                            |
+| ---------- | ----------------------------------------------- |
+| 字典管理   | ![字典管理](./docs/images/dicts.png)            |
+| 登录页设置 | ![登录页设置](./docs/images/login-settings.png) |
+| 系统配置   | ![系统配置](./docs/images/config.png)           |
+| 安全策略   | ![安全策略](./docs/images/security.png)         |
+
+### 系统工具
+
+| 模块     | 截图                                 |
+| -------- | ------------------------------------ |
+| 文件管理 | ![文件管理](./docs/images/files.png) |
+| 定时任务 | ![定时任务](./docs/images/jobs.png)  |
+
+## 功能概览
+
+- JWT 登录与会话刷新；`v-permission` 按钮级权限
+- 动态菜单 / 路由注册（后端路由 + 视图懒加载）
+- 角色、权限、用户、单位、字典、公告、站内信、登录页配置、系统配置、安全策略
+- 页面标签栏、多布局模式、主题（含自定义色与背景）
+- 通用系统配置 + 登录用户个人布局/字号（右下角悬浮入口）
+- 表格列个性化、Excel 导入；日志 Excel 导出
+- 系统监控：在线用户 / 服务 / Redis / SQL
+- 日志管理：登录日志、操作日志、异常日志（查询、详情、删除、清空、导出）
+- 文件管理、定时任务、接口文档页
+- 公告 WebSocket 推送（`/ws`）
 
 ## 环境与约定
 

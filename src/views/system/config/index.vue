@@ -26,12 +26,6 @@
     <el-tabs v-model="activeTab" tab-position="left" class="system-config-page__tabs">
       <el-tab-pane label="应用信息" name="app">
         <el-form :model="form" label-width="120px" class="system-config-page__form">
-          <el-form-item label="当前前端工程">
-            <el-input :model-value="clientId" disabled />
-            <p class="system-config-page__field-hint">
-              项目名称 / 应用介绍按此 clientId 写入数据库（app.clients），各技术栈互不影响；页脚与品牌图标仍共享。
-            </p>
-          </el-form-item>
           <el-form-item label="项目名称" required>
             <el-input
               v-model="form.app.name"

@@ -65,8 +65,16 @@ export default {
   height: 100%;
 }
 
-/* 首页 / 监控 / 个人中心等：内容超出时在主区域滚动 */
-.layout-content__body :deep(> *:not(.page-layout):not(.el-container)) {
+/* 个人信息：左侧头像固定，右侧内部滚动 */
+.layout-content__body :deep(> .profile-page) {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 首页 / 监控等：内容超出时在主区域滚动 */
+.layout-content__body :deep(> *:not(.page-layout):not(.el-container):not(.profile-page)) {
   flex: 1;
   min-width: 0;
   min-height: 0;

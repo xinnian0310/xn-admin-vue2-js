@@ -8,7 +8,7 @@
 | 代码来源 | 自 [`xn-admin-vue3-js`](../xn-admin-vue3-js/) 复制后改写脚本写法 |
 | 后端 | 仅 [`xn-admin-cloud`](../xn-admin-cloud/) |
 | `APP_CLIENT_ID` | `xn-admin-vue3-options-js` |
-| 开发端口 | `1802` |
+| 开发端口 | `1801` |
 
 ## 已知差异（非功能缩水）
 
@@ -23,7 +23,7 @@
 | --- | --- |
 | 环境/代理/鉴权/菜单 | 18/18 PASS |
 | 第 6 章页面（文件+API+Options 写法） | 37/37 PASS |
-| WebSocket（网关 + :1802 代理） | 2/2 PASS |
+| WebSocket（网关 + :1801 代理） | 2/2 PASS |
 | 写路径（公告/岗位/消息/单位角色/系统配置 clients/角色权限/用户导入） | 8/8 PASS |
 | 总评 | **PASS** |
 

@@ -122,18 +122,19 @@ export default {
     '$route.path': {
       async handler() {
         await this.$nextTick()
-        this.scrollActiveIntoView()
+        this.scheduleScrollActiveIntoView()
       },
     },
     'tagsViewStore.visitedViews.length': {
       async handler() {
         await this.$nextTick()
-        this.updateScrollState()
+        this.scheduleScrollActiveIntoView()
       },
     },
   },
   mounted() {
     this.updateScrollState()
+    this.scheduleScrollActiveIntoView()
     const el = this.$refs.scrollRef
     if (el && typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => this.updateScrollState())
@@ -240,7 +241,7 @@ export default {
           break
       }
       await this.$nextTick()
-      this.updateScrollState()
+      this.scheduleScrollActiveIntoView()
     },
     updateScrollState() {
       const el = this.$refs.scrollRef
@@ -262,9 +263,32 @@ export default {
       el.scrollBy({ left: direction * step, behavior: 'smooth' })
     },
     scrollActiveIntoView() {
-      const activeEl = this.$refs.scrollRef?.querySelector('.tags-view__item.is-active')
-      activeEl?.scrollIntoView({ inline: 'nearest', block: 'nearest' })
+      const container = this.$refs.scrollRef
+      if (!container) {
+        this.updateScrollState()
+        return
+      }
+      const activeEl = container.querySelector('.tags-view__item.is-active')
+      if (!activeEl) {
+        this.updateScrollState()
+        return
+      }
+
+      const padding = 12
+      const cRect = container.getBoundingClientRect()
+      const aRect = activeEl.getBoundingClientRect()
+
+      if (aRect.left < cRect.left + padding) {
+        container.scrollBy({ left: aRect.left - cRect.left - padding, behavior: 'smooth' })
+      } else if (aRect.right > cRect.right - padding) {
+        container.scrollBy({ left: aRect.right - cRect.right + padding, behavior: 'smooth' })
+      }
       this.updateScrollState()
+    },
+    scheduleScrollActiveIntoView() {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => this.scrollActiveIntoView())
+      })
     },
   },
 }

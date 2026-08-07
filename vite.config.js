@@ -23,8 +23,8 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    // PRD: options-js uses 5175; API proxies to xn-admin-cloud gateway
-    port: 1802,
+    // API proxies to xn-admin-cloud gateway
+    port: 1801,
     open: true,
     proxy: {
       '/api': {
