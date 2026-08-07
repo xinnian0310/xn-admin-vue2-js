@@ -4,27 +4,34 @@
 
 目录名 `vue2-js` 表示「第二套 JS 写法」（Options），不是 Vue 2 运行时。`package.json` 的 `name` 为 `xn-admin-vue3-options-js`；对外 `APP_CLIENT_ID` 为 `xn-admin-vue2-js`。
 
-功能与 [`xn-admin-vue3-ts`](../xn-admin-vue3-ts/) 对齐，共用微服务后端 [`xn-admin-cloud`](../xn-admin-cloud/)（网关 `8088`）。同步范围见 [`../docs/PRD-xn-admin-frontend-sync.md`](../docs/PRD-xn-admin-frontend-sync.md)。
+本仓库**独立开源**。功能与基准仓库 **xn-admin-vue3-ts** 对齐，共用微服务后端 **xn-admin-cloud**（网关 `8088`）。
 
 版本：`1.0.0` · 许可证：[Apache-2.0](./LICENSE) · Copyright 2026 心念
+
+## 相关仓库
+
+| 仓库 | 说明 |
+|------|------|
+| `xn-admin-cloud` | 微服务后端（必需） |
+| `xn-admin-vue3-ts` | 功能基准（TypeScript） |
+| `xn-admin-vue3-js` / `xn-admin-react-ts` | 其它技术栈管理端 |
 
 ## 前提
 
 1. Node.js 20+（见 `.nvmrc`）
-2. 后端已启动，网关可访问：http://127.0.0.1:8088  
-   （同级目录一般为 [`../xn-admin-cloud`](../xn-admin-cloud/)，按其 README 启动 system / file / log / job / gateway）
-3. MySQL / Redis / Nacos 等中间件已就绪
+2. 后端 **xn-admin-cloud** 已启动，网关可访问：http://127.0.0.1:8088
+3. MySQL / Redis / Nacos / MinIO 等中间件已就绪（随后端）
 
 ## 默认账号
 
-与后端种子账号一致（首次初始化）：
+与后端种子账号一致（首次初始化，**仅用于本地开发**）：
 
 | 用户名       | 初始密码     | 说明       |
 | ------------ | ------------ | ---------- |
 | `SuperAdmin` | `SuperAdmin` | 超级管理员 |
 | `admin`      | `admin`      | 管理员     |
 
-登录后请尽快修改密码。
+登录后请尽快修改密码。详见 [SECURITY.md](./SECURITY.md)。
 
 ## 快速启动
 
@@ -143,7 +150,7 @@ xnPageLayout
 
 ## 界面预览
 
-截图放在 [`docs/images/`](./docs/images/)，命名与基准 [`xn-admin-vue3-ts`](../xn-admin-vue3-ts/) 一致。
+截图放在 [`docs/images/`](./docs/images/)，命名与基准仓库 **xn-admin-vue3-ts** 一致。
 
 ### 登录与首页
 
@@ -235,4 +242,14 @@ xnPageLayout
 - 鉴权 Token 由 `utils/request` 注入；未登录跳转登录页
 - 列表页常用 `usePageUi`（于 `setup()` 返回）+ Options `methods` 数据加载
 - 日志等特殊导出走 `utils/download.js`（带鉴权拉取文件流）
-- 共用后端：仅对接 `xn-admin-cloud`，见 [PRD](../docs/PRD-xn-admin-frontend-sync.md)
+- 共用后端：仅对接独立仓库 `xn-admin-cloud`
+
+## 生产部署（摘要）
+
+- `npm run build` 产出静态资源，由 Nginx 等托管
+- 将 `/api`、`/uploads`、`/ws` 反向代理到后端网关（默认 `127.0.0.1:8088`）
+- 安全见 [SECURITY.md](./SECURITY.md)；贡献见 [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+## 许可证
+
+[Apache License 2.0](./LICENSE)

@@ -4,9 +4,9 @@
 
 | 项 | 说明 |
 | --- | --- |
-| 功能基准 | [`xn-admin-vue3-ts`](../xn-admin-vue3-ts/) |
-| 代码来源 | 自 [`xn-admin-vue3-js`](../xn-admin-vue3-js/) 复制后改写脚本写法 |
-| 后端 | 仅 [`xn-admin-cloud`](../xn-admin-cloud/) |
+| 功能基准 | **xn-admin-vue3-ts**（独立仓库） |
+| 代码来源 | 自独立仓库 **xn-admin-vue3-js** 复制后改写脚本写法 |
+| 后端 | 仅 **xn-admin-cloud**（独立仓库） |
 | `APP_CLIENT_ID` | `xn-admin-vue3-options-js` |
 | 开发端口 | `1801` |
 
