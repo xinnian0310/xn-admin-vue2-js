@@ -73,8 +73,16 @@ export default {
   overflow: hidden;
 }
 
+.layout-content__body :deep(> .iframe-page) {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 /* 首页 / 监控等：内容超出时在主区域滚动 */
-.layout-content__body :deep(> *:not(.page-layout):not(.el-container):not(.profile-page)) {
+.layout-content__body
+  :deep(> *:not(.page-layout):not(.el-container):not(.profile-page):not(.iframe-page)) {
   flex: 1;
   min-width: 0;
   min-height: 0;
