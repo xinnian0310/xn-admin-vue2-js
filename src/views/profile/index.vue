@@ -15,12 +15,12 @@
     />
 
     <el-alert
-      v-if="!canEdit"
+      v-if="!canEditProfile"
       type="warning"
       :closable="false"
       show-icon
       class="profile-page__alert"
-      title="超级管理员账号禁止编辑个人信息"
+      title="超级管理员仅可修改密码，不可改用户名与基本资料"
     />
 
     <div class="profile-page__body">
@@ -29,7 +29,7 @@
         <div class="profile-page__name">{{ form.nickname || form.username || '-' }}</div>
         <div class="profile-page__role">{{ roleText }}</div>
         <el-upload
-          v-if="canEdit"
+          v-if="canEditProfile"
           :show-file-list="false"
           :http-request="handleAvatarUpload"
           accept="image/jpeg,image/png,image/gif,image/webp"
@@ -47,7 +47,7 @@
               :model="form"
               :rules="rules"
               label-width="88px"
-              :disabled="formDisabled"
+              :disabled="profileFormDisabled"
             >
               <el-form-item label="用户名">
                 <el-input v-model="form.username" disabled />
@@ -87,7 +87,7 @@
               :model="pwdForm"
               :rules="pwdRules"
               label-width="88px"
-              :disabled="formDisabled"
+              :disabled="passwordFormDisabled"
             >
               <el-form-item label="原密码" prop="oldPassword">
                 <el-input
@@ -127,7 +127,9 @@
               <el-button :disabled="saving" @click="cancelEdit">取消</el-button>
               <el-button type="primary" :loading="saving" @click="handleSave">保存</el-button>
             </template>
-            <el-button v-else type="primary" @click="startEdit">修改</el-button>
+            <el-button v-else type="primary" @click="startEdit">
+              {{ canEditProfile ? '修改' : '修改密码' }}
+            </el-button>
           </template>
         </div>
       </div>
@@ -184,11 +186,23 @@ export default {
     }
   },
   computed: {
-    canEdit() {
+    canEditProfile() {
       return !this.isSuperAdmin
     },
+    canEditPassword() {
+      return true
+    },
+    canEdit() {
+      return this.canEditProfile || this.canEditPassword
+    },
+    profileFormDisabled() {
+      return !this.canEditProfile || !this.editing
+    },
+    passwordFormDisabled() {
+      return !this.canEditPassword || !this.editing
+    },
     formDisabled() {
-      return !this.canEdit || !this.editing
+      return this.profileFormDisabled
     },
     user() {
       return this.userStore.user
@@ -281,7 +295,7 @@ export default {
     },
     forcePwd: {
       handler(v) {
-        if (v && this.canEdit) this.editing = true
+        if (v && this.canEditPassword) this.editing = true
       },
       immediate: true,
     },
@@ -304,10 +318,6 @@ export default {
       this.$refs.pwdFormRef?.clearValidate()
     },
     startEdit() {
-      if (!this.canEdit) {
-        ElMessage.warning('超级管理员禁止编辑个人信息')
-        return
-      }
       this.syncForm()
       this.resetPwdForm()
       this.editing = true
@@ -329,36 +339,41 @@ export default {
       }
     },
     async handleSave() {
-      if (!this.canEdit) {
-        ElMessage.warning('超级管理员禁止编辑个人信息')
-        return
-      }
-      const valid = await this.$refs.formRef?.validate().catch(() => false)
-      if (!valid) return
-
       const hasPwdInput = Boolean(
         this.pwdForm.oldPassword || this.pwdForm.newPassword || this.pwdForm.confirmPassword,
       )
-      if (this.forcePwd || hasPwdInput) {
+      if (this.canEditProfile) {
+        const valid = await this.$refs.formRef?.validate().catch(() => false)
+        if (!valid) return
+      }
+      if (this.forcePwd || hasPwdInput || !this.canEditProfile) {
         const pwdValid = await this.$refs.pwdFormRef?.validate().catch(() => false)
         if (!pwdValid) return
       }
 
       this.saving = true
       try {
-        await this.userStore.updateProfile({
-          nickname: this.form.nickname,
-          email: this.form.email,
-          phone: this.form.phone,
-        })
-        if (this.forcePwd || hasPwdInput) {
+        if (this.canEditProfile) {
+          await this.userStore.updateProfile({
+            nickname: this.form.nickname,
+            email: this.form.email,
+            phone: this.form.phone,
+          })
+        }
+        if (this.forcePwd || hasPwdInput || !this.canEditProfile) {
           await changePassword({
             oldPassword: this.pwdForm.oldPassword,
             newPassword: this.pwdForm.newPassword,
           })
           this.resetPwdForm()
           await this.userStore.fetchProfile()
-          ElMessage.success(this.forcePwd ? '密码已修改' : '资料与密码已保存')
+          ElMessage.success(
+            this.forcePwd
+              ? '密码已修改'
+              : this.canEditProfile
+                ? '资料与密码已保存'
+                : '密码已修改',
+          )
           if (this.$route.query.forcePwd === '1') {
             this.editing = false
             this.$router.replace('/dashboard')
@@ -369,7 +384,8 @@ export default {
         }
         this.editing = false
       } catch (e) {
-        const msg = e && typeof e === 'object' && 'message' in e ? String(e.message) : '保存失败'
+        const msg =
+          e && typeof e === 'object' && 'message' in e ? String(e.message) : '保存失败'
         ElMessage.error(msg || '保存失败')
       } finally {
         this.saving = false

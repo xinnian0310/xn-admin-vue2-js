@@ -291,6 +291,7 @@ export default {
     'update:page',
     'update:pageSize',
     'page-change',
+    'refresh',
     'selection-change',
     'switch-change',
     'data-change',
@@ -703,6 +704,11 @@ export default {
     handleRefresh() {
       if (this.isApiMode) {
         this.loadData()
+        return
+      }
+      // Prefer @refresh when parent listens; else fall back to page-change
+      if (this.$attrs.onRefresh || this.$listeners?.refresh) {
+        this.$emit('refresh')
         return
       }
       this.$emit('page-change')

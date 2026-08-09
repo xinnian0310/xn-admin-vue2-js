@@ -4,6 +4,7 @@
     v-model:page-size="size"
     :total="total"
     @page-change="applyLocalPage"
+    @refresh="loadData"
   >
     <template #search>
       <xnSearch :search-item="searchItems" @query-form="inquires" @reset="reset" />
@@ -32,6 +33,7 @@
         stripe
         @selection-change="selectionChangeHandle"
         @page-change="applyLocalPage"
+        @refresh="loadData"
       >
         <template #actions="{ row }">
           <xnTableActions :items="tableButtonItems" :row="row" @action-click="onTableAction" />
@@ -103,7 +105,10 @@ export default {
   computed: {
     toolbarButtons() {
       return this.buttonItems.map((item) => {
-        if (item.action === 'delete' && this.monitor?.status !== 'ENABLED') {
+        if (
+          (item.action === 'delete' || item.action === 'flush') &&
+          this.monitor?.status !== 'ENABLED'
+        ) {
           return { ...item, disabled: true }
         }
         return item
@@ -166,20 +171,23 @@ export default {
         }
         this.openDetail(this.selected[0].key, action === 'edit')
       } else if (action === 'delete') {
-        if (this.selected.length) {
-          await ElMessageBox.confirm(
-            `确定删除选中的 ${this.selected.length} 个 Key 吗？`,
-            '删除确认',
-            { type: 'warning' },
-          )
-          for (const row of this.selected) {
-            await deleteRedisKey(row.key)
-          }
-          ElMessage.success('删除成功')
-          this.loadData()
-        } else {
-          await this.handleFlush()
+        if (!this.selected.length) {
+          ElMessage.warning('请至少选择一个 Key')
+          return
         }
+        await ElMessageBox.confirm(
+          `确定删除选中的 ${this.selected.length} 个 Key 吗？`,
+          '删除确认',
+          { type: 'warning' },
+        )
+        for (const row of this.selected) {
+          await deleteRedisKey(row.key)
+        }
+        ElMessage.success('删除成功')
+        this.selected = []
+        this.loadData()
+      } else if (action === 'flush') {
+        await this.handleFlush()
       }
     },
     onTableAction(payload) {

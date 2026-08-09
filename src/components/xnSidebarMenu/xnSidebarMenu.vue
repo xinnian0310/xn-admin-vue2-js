@@ -11,7 +11,7 @@
     :text-color="textColor"
     :active-text-color="activeColor"
   >
-    <xnSidebarMenuItem :menus="resolvedMenus" />
+    <xnSidebarMenuItem :menus="resolvedMenus" :highlight-ids="highlightIds" />
   </el-menu>
 </template>
 
@@ -27,6 +27,7 @@ export default {
   props: {
     mode: { type: String, required: false, default: 'vertical' },
     menus: { required: false },
+    highlightIds: { type: Array, required: false, default: () => [] },
   },
   setup() {
     const menuStore = useMenuStore()
@@ -78,6 +79,13 @@ export default {
           this.$refs.menuRef?.open(id)
         }
       },
+    },
+  },
+  methods: {
+    openMenus(ids) {
+      for (const id of ids) {
+        this.$refs.menuRef?.open(id)
+      }
     },
   },
 }
@@ -145,5 +153,14 @@ export default {
 
 .sidebar-menu:not(.is-horizontal) :deep(.el-sub-menu.is-opened > .el-sub-menu__title) {
   color: var(--app-sidebar-text-active);
+}
+
+/* 菜单搜索命中高亮（不跳转、不抢占当前路由激活态） */
+.sidebar-menu:not(.is-horizontal) :deep(.el-menu-item.is-search-hit),
+.sidebar-menu:not(.is-horizontal) :deep(.el-sub-menu.is-search-hit > .el-sub-menu__title) {
+  color: var(--app-sidebar-text-active) !important;
+  background-color: color-mix(in srgb, var(--app-sidebar-active) 28%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--app-sidebar-active);
+  font-weight: 600;
 }
 </style>

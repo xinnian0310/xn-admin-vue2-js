@@ -4,6 +4,7 @@
     v-model:page-size="size"
     :total="total"
     @page-change="applyLocalPage"
+    @refresh="loadData"
   >
     <template #search>
       <xnSearch :search-item="searchItems" @query-form="inquires" @reset="reset" />
@@ -29,6 +30,7 @@
         stripe
         @selection-change="selectionChangeHandle"
         @page-change="applyLocalPage"
+        @refresh="loadData"
       >
         <template #executedAt="{ row }">
           {{ formatDateTime(row.executedAt) }}
@@ -69,7 +71,7 @@ import { usePageUi } from '@/composables/usePageUi'
 import { cleanSqlMonitor, getSqlMonitor, removeSqlRecord } from '@/api/monitor'
 import { formatDateTime } from '@/utils/datetime'
 
-/** 权限内容：sql:view/delete；table-view/table-delete */
+/** 权限内容：sql:view/delete/clean；table-view/table-delete */
 const columns = [
   { type: 'selection', width: 50, fixed: true },
   { type: 'slot', slot: 'executedAt', prop: 'executedAt', label: '执行时间', width: 170 },
@@ -160,23 +162,23 @@ export default {
         }
         this.openDetail(this.selected[0])
       } else if (action === 'delete') {
-        if (this.selected.length) {
-          await ElMessageBox.confirm(
-            `确定删除选中的 ${this.selected.length} 条 SQL 记录吗？`,
-            '删除确认',
-            { type: 'warning' },
-          )
-          for (const row of this.selected) {
-            if (row.id != null) await removeSqlRecord(row.id)
-          }
-          ElMessage.success('删除成功')
-          this.loadData()
-        } else {
-          await ElMessageBox.confirm('确定清空全部 SQL 监控缓冲吗？', '清空确认', { type: 'warning' })
-          await cleanSqlMonitor()
-          ElMessage.success('已清空')
-          this.loadData()
+        if (!this.selected.length) {
+          ElMessage.warning('请至少选择一条 SQL 记录')
+          return
         }
+        await ElMessageBox.confirm(
+          `确定删除选中的 ${this.selected.length} 条 SQL 记录吗？`,
+          '删除确认',
+          { type: 'warning' },
+        )
+        for (const row of this.selected) {
+          if (row.id != null) await removeSqlRecord(row.id)
+        }
+        ElMessage.success('删除成功')
+        this.selected = []
+        this.loadData()
+      } else if (action === 'clean') {
+        await this.handleClean()
       }
     },
     onTableAction(payload) {
@@ -192,6 +194,13 @@ export default {
       await ElMessageBox.confirm('确定删除该条 SQL 记录吗？', '删除确认', { type: 'warning' })
       await removeSqlRecord(row.id)
       ElMessage.success('删除成功')
+      this.loadData()
+    },
+    async handleClean() {
+      await ElMessageBox.confirm('确定清空全部 SQL 监控缓冲吗？', '清空确认', { type: 'warning' })
+      await cleanSqlMonitor()
+      ElMessage.success('已清空')
+      this.selected = []
       this.loadData()
     },
     inquires(form) {

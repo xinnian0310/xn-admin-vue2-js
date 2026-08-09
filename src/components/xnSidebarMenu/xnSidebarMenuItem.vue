@@ -3,7 +3,11 @@
     <el-sub-menu
       v-if="item.children?.length"
       :index="item.id"
-      :class="{ 'is-self-active': isSelfActive(item) }"
+      :data-menu-id="item.id"
+      :class="{
+        'is-self-active': isSelfActive(item),
+        'is-search-hit': isSearchHit(item.id),
+      }"
     >
       <template #title>
         <span
@@ -15,10 +19,15 @@
           <span>{{ item.title }}</span>
         </span>
       </template>
-      <xnSidebarMenuItem :menus="item.children" />
+      <xnSidebarMenuItem :menus="item.children" :highlight-ids="highlightIds" />
     </el-sub-menu>
 
-    <el-menu-item v-else-if="item.path" :index="item.path">
+    <el-menu-item
+      v-else-if="item.path"
+      :index="item.path"
+      :data-menu-id="item.id"
+      :class="{ 'is-search-hit': isSearchHit(item.id) }"
+    >
       <xnAppIcon v-if="item.icon" :name="item.icon" class="menu-icon" />
       <span>{{ item.title }}</span>
     </el-menu-item>
@@ -33,8 +42,12 @@ export default {
   components: { xnAppIcon },
   props: {
     menus: { required: true },
+    highlightIds: { type: Array, required: false, default: () => [] },
   },
   methods: {
+    isSearchHit(id) {
+      return this.highlightIds.includes(id)
+    },
     isSelfActive(item) {
       if (!item.path) return false
       const active =

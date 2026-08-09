@@ -130,7 +130,7 @@ function clampTop(value) {
 }
 
 export default {
-  name: 'UiPreferenceFab',
+  name: 'xnUiPreferenceFab',
   components: { Setting },
   setup() {
     const uiPrefStore = useUiPreferenceStore()
