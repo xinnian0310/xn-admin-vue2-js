@@ -182,8 +182,8 @@ export default {
       slideStartX: 0,
       slideStartPercent: 0,
       form: {
-        username: 'SuperAdmin',
-        password: '',
+        username: 'admin',
+        password: 'admin',
         captcha: '',
         sliderOk: false,
       },

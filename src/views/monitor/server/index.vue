@@ -17,8 +17,8 @@
           <span>配套组件</span>
           <span class="infra-hint" v-if="infra.projectRoot">根目录 {{ infra.projectRoot }}</span>
         </div>
-        <el-row :gutter="12">
-          <el-col :xs="24" :sm="12" :md="8" :lg="4" v-for="item in infraCards" :key="item.key">
+        <el-row :gutter="12" class="infra-row">
+          <el-col v-for="item in infraCards" :key="item.key" class="infra-col">
             <div class="infra-card" :class="'is-' + (item.status || 'unknown').toLowerCase()">
               <div class="infra-card__head">
                 <span class="infra-card__name">{{ item.title }}</span>
@@ -226,7 +226,7 @@ export default {
         { key: 'minio', title: 'MinIO', ...this.infra.minio },
         { key: 'nacos', title: 'Nacos', ...this.infra.nacos },
         { key: 'kkfileview', title: 'kkFileView', ...this.infra.kkfileview },
-        { key: 'backend', title: 'Backend', ...this.infra.backend },
+        { key: 'backend', title: '后端', ...this.infra.backend },
       ]
     },
     gauges() {
@@ -416,6 +416,31 @@ export default {
 
 .infra-section {
   margin-bottom: 20px;
+}
+
+/* 5 项无法整除 24 栅格，用 flex 均分整行宽度 */
+.infra-row {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+
+.infra-col {
+  flex: 1 1 0;
+  max-width: none !important;
+  width: auto !important;
+  min-width: 0;
+}
+
+@media (max-width: 992px) {
+  .infra-col {
+    flex: 1 1 calc(50% - 6px);
+  }
+}
+
+@media (max-width: 576px) {
+  .infra-col {
+    flex: 1 1 100%;
+  }
 }
 
 .infra-title {
