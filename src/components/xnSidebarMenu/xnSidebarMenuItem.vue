@@ -51,7 +51,9 @@ export default {
     isSelfActive(item) {
       if (!item.path) return false
       const active =
-        this.$route.meta.activeMenu || this.$route.path.replace(/\/save(\/.*)?$/, '') || this.$route.path
+        this.$route.meta.activeMenu ||
+        this.$route.path.replace(/\/save(\/.*)?$/, '') ||
+        this.$route.path
       return active === item.path
     },
     /** 有 path 的父级：点标题跳转；点右侧箭头仍展开/收起 */

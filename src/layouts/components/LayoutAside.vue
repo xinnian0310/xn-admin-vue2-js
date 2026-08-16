@@ -19,11 +19,7 @@
       </el-input>
     </div>
     <el-scrollbar ref="scrollRef" class="layout-aside__scroll">
-      <xnSidebarMenu
-        ref="menuCompRef"
-        :menus="menus"
-        :highlight-ids="highlightIds"
-      />
+      <xnSidebarMenu ref="menuCompRef" :menus="menus" :highlight-ids="highlightIds" />
     </el-scrollbar>
   </el-aside>
 </template>
@@ -62,9 +58,7 @@ export default {
   },
   computed: {
     resolvedMenus() {
-      return this.menus
-        ? filterHiddenMenus(this.menus)
-        : filterHiddenMenus(this.menuStore.menus)
+      return this.menus ? filterHiddenMenus(this.menus) : filterHiddenMenus(this.menuStore.menus)
     },
   },
   methods: {

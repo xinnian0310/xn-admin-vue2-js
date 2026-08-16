@@ -365,11 +365,7 @@ export default {
           this.resetPwdForm()
           await this.userStore.fetchProfile()
           ElMessage.success(
-            this.forcePwd
-              ? '密码已修改'
-              : this.canEditProfile
-                ? '资料与密码已保存'
-                : '密码已修改',
+            this.forcePwd ? '密码已修改' : this.canEditProfile ? '资料与密码已保存' : '密码已修改',
           )
           if (this.$route.query.forcePwd === '1') {
             this.editing = false
@@ -381,8 +377,7 @@ export default {
         }
         this.editing = false
       } catch (e) {
-        const msg =
-          e && typeof e === 'object' && 'message' in e ? String(e.message) : '保存失败'
+        const msg = e && typeof e === 'object' && 'message' in e ? String(e.message) : '保存失败'
         ElMessage.error(msg || '保存失败')
       } finally {
         this.saving = false

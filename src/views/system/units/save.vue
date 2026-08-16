@@ -156,7 +156,9 @@ export default {
       this.form.description = data.description ?? ''
       this.form.sort = data.sort ?? 0
       this.form.status = data.status ?? 1
-      this.form.roleIds = data.roleIds?.length ? [...data.roleIds] : (data.roleList || []).map((r) => r.id)
+      this.form.roleIds = data.roleIds?.length
+        ? [...data.roleIds]
+        : (data.roleList || []).map((r) => r.id)
     },
     async open(openMode, id, options) {
       this.mode = openMode

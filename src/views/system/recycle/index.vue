@@ -1,10 +1,5 @@
 <template>
-  <xnPageLayout
-    v-model:page="page"
-    v-model:page-size="size"
-    :total="total"
-    @page-change="loadData"
-  >
+  <xnPageLayout v-model:page="page" v-model:page-size="size" :total="total" @page-change="loadData">
     <template #search>
       <xnSearch :search-item="searchItems" @query-form="inquires" @reset="reset" />
     </template>
@@ -118,9 +113,13 @@ export default {
       } else if (action === 'purge') {
         await this.handleBatchPurge()
       } else if (action === 'clean') {
-        await ElMessageBox.confirm('确定清空回收站并彻底删除全部内容吗？此操作不可恢复。', '清空确认', {
-          type: 'warning',
-        })
+        await ElMessageBox.confirm(
+          '确定清空回收站并彻底删除全部内容吗？此操作不可恢复。',
+          '清空确认',
+          {
+            type: 'warning',
+          },
+        )
         await cleanRecycle()
         ElMessage.success('回收站已清空')
         this.loadData()

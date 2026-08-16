@@ -295,9 +295,7 @@ export default {
       return this.toMenuNodes(this.routeTree)
     },
     selectedRoute() {
-      return this.selectedRouteId != null
-        ? (routeById.get(this.selectedRouteId) ?? null)
-        : null
+      return this.selectedRouteId != null ? (routeById.get(this.selectedRouteId) ?? null) : null
     },
     selectedMenu() {
       const code = this.selectedRoute?.permission
@@ -489,9 +487,8 @@ export default {
           if (
             !node.disabled &&
             (!requireAssignable ||
-              this.collectDirectAssignable(
-                node.code ? permissionByCode.get(node.code) : undefined,
-              ).length > 0)
+              this.collectDirectAssignable(node.code ? permissionByCode.get(node.code) : undefined)
+                .length > 0)
           ) {
             return node.id
           }

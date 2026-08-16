@@ -340,7 +340,9 @@ export default {
       this.loadData()
     },
     async handleRevoke(row) {
-      await ElMessageBox.confirm(`确定撤回公告「${row.title}」吗？`, '撤回确认', { type: 'warning' })
+      await ElMessageBox.confirm(`确定撤回公告「${row.title}」吗？`, '撤回确认', {
+        type: 'warning',
+      })
       await revoke(row.id)
       ElMessage.success('撤回成功')
       this.loadData()

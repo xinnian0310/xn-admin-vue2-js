@@ -24,9 +24,7 @@ function assertCrudApi(name, mod) {
     const available = Object.keys(apiModules)
       .map((k) => k.replace(/\\/g, '/').split('/api/').pop())
       .join(', ')
-    throw new Error(
-      `[api-loader] 未找到 API 模块: @/api/${name}.js（已加载: ${available}）`,
-    )
+    throw new Error(`[api-loader] 未找到 API 模块: @/api/${name}.js（已加载: ${available}）`)
   }
   const missing = REQUIRED.filter((key) => typeof mod[key] !== 'function')
   if (missing.length) {
@@ -43,7 +41,12 @@ function loadCrudApi(api) {
 function listApiModuleNames() {
   return Object.keys(apiModules).map((k) => {
     const normalized = k.replace(/\\/g, '/')
-    return normalized.split('/api/').pop()?.replace(/\.(ts|js)$/, '') ?? normalized
+    return (
+      normalized
+        .split('/api/')
+        .pop()
+        ?.replace(/\.(ts|js)$/, '') ?? normalized
+    )
   })
 }
 export { listApiModuleNames, loadCrudApi }

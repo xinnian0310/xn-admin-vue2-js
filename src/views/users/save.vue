@@ -16,7 +16,10 @@
       <el-form-item label="用户名" prop="username">
         <el-input
           v-model="form.username"
-          :disabled="mode === 'view' || (editingId !== null && (form.username === 'admin' || form.username === 'SuperAdmin'))"
+          :disabled="
+            mode === 'view' ||
+            (editingId !== null && (form.username === 'admin' || form.username === 'SuperAdmin'))
+          "
         />
       </el-form-item>
       <el-form-item label="密码" prop="password">
@@ -138,7 +141,9 @@ export default {
       return this.passwordRules?.tip || '不少于 6 位'
     },
     sensitiveFieldsLocked() {
-      return this.mode !== 'add' && this.editingId != null && !this.hasPermission('user:sensitive:view')
+      return (
+        this.mode !== 'add' && this.editingId != null && !this.hasPermission('user:sensitive:view')
+      )
     },
     availableRoles() {
       return this.isSuperAdmin

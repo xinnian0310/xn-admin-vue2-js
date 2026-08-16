@@ -12,11 +12,7 @@
     </template>
 
     <template #toolbar>
-      <xnButton
-        :list-item="buttonItems"
-        :selected="selected"
-        @button-click="handleToolbarAction"
-      />
+      <xnButton :list-item="buttonItems" :selected="selected" @button-click="handleToolbarAction" />
     </template>
 
     <template #table>

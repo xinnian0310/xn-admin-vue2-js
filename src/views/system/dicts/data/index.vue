@@ -227,11 +227,15 @@ export default {
         ElMessage.warning('请至少选择一项')
         return
       }
-      await ElMessageBox.confirm(`确定删除选中的 ${this.selected.length} 条字典数据吗？`, '删除确认', {
-        type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-      })
+      await ElMessageBox.confirm(
+        `确定删除选中的 ${this.selected.length} 条字典数据吗？`,
+        '删除确认',
+        {
+          type: 'warning',
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+        },
+      )
       await batchRemove(this.selected.map((r) => r.id))
       ElMessage.success('删除成功')
       this.loadData()

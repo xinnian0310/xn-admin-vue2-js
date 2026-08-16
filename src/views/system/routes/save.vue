@@ -345,7 +345,8 @@ export default {
 
         const viewPath =
           this.form.type === 'MENU' && normalizedPath ? autoViewPath(normalizedPath) : undefined
-        const linkUrl = this.form.type === 'LINK' ? this.normalizeLinkUrl(this.form.linkUrl ?? '') : undefined
+        const linkUrl =
+          this.form.type === 'LINK' ? this.normalizeLinkUrl(this.form.linkUrl ?? '') : undefined
 
         if (this.form.type === 'MENU' && normalizedPath && !hasIndexView(normalizedPath)) {
           ElMessage.warning(`views/${viewPath}/index.vue 尚未创建，请先创建对应页面文件`)

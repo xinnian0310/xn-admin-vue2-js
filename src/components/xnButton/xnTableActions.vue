@@ -30,9 +30,7 @@ export default {
   },
   computed: {
     visibleList() {
-      return this.items.filter(
-        (item) => !item.permission || this.hasPermission(item.permission),
-      )
+      return this.items.filter((item) => !item.permission || this.hasPermission(item.permission))
     },
   },
   methods: {

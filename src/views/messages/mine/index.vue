@@ -216,7 +216,9 @@ export default {
       }
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(`确定删除消息「${row.title}」吗？`, '删除确认', { type: 'warning' })
+      await ElMessageBox.confirm(`确定删除消息「${row.title}」吗？`, '删除确认', {
+        type: 'warning',
+      })
       await removeMine(row.id)
       ElMessage.success('删除成功')
       this.loadData()

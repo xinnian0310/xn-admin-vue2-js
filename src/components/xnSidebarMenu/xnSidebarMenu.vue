@@ -45,9 +45,7 @@ export default {
       return this.themeStore.currentTheme.colors.sidebar.active
     },
     resolvedMenus() {
-      return this.menus
-        ? filterHiddenMenus(this.menus)
-        : filterHiddenMenus(this.menuStore.menus)
+      return this.menus ? filterHiddenMenus(this.menus) : filterHiddenMenus(this.menuStore.menus)
     },
     activeMenu() {
       if (this.$route.meta.activeMenu) return this.$route.meta.activeMenu

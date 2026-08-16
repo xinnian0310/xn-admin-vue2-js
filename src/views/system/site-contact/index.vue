@@ -260,7 +260,11 @@ export default {
           const groups = (c.groups ?? [])
             .filter((g) => g.value?.trim())
             .map((g) => ({ value: g.value.trim(), full: Boolean(g.full) }))
-          item.groups = groups.length ? groups : item.value ? [{ value: item.value, full: false }] : []
+          item.groups = groups.length
+            ? groups
+            : item.value
+              ? [{ value: item.value, full: false }]
+              : []
           if (item.groups.length) item.value = item.groups[0].value
           item.link = ''
         }
@@ -373,8 +377,10 @@ export default {
         ElMessage.warning('未找到选中项')
         return
       }
-      if (action === 'edit') this.$refs.contactSaveRef?.open('edit', this.contacts[resolved], resolved)
-      if (action === 'view') this.$refs.contactSaveRef?.open('view', this.contacts[resolved], resolved)
+      if (action === 'edit')
+        this.$refs.contactSaveRef?.open('edit', this.contacts[resolved], resolved)
+      if (action === 'view')
+        this.$refs.contactSaveRef?.open('view', this.contacts[resolved], resolved)
     },
     onQrToolbar(action) {
       if (this.qrSelected.length !== 1) {

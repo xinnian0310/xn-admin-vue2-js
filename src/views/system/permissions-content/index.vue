@@ -319,9 +319,7 @@ export default {
       return this.toMenuNodes(this.routeTree)
     },
     selectedRoute() {
-      return this.selectedRouteId != null
-        ? (routeById.get(this.selectedRouteId) ?? null)
-        : null
+      return this.selectedRouteId != null ? (routeById.get(this.selectedRouteId) ?? null) : null
     },
     selectedMenu() {
       const code = this.selectedRoute?.permission
@@ -349,7 +347,13 @@ export default {
         cols.push(
           { type: 'slot', slot: 'icon', prop: 'icon', label: '图标', width: 70 },
           { type: 'slot', slot: 'action', prop: 'action', label: '动作', minWidth: 110 },
-          { type: 'slot', slot: 'buttonColor', prop: 'buttonColor', label: '按钮颜色', minWidth: 100 },
+          {
+            type: 'slot',
+            slot: 'buttonColor',
+            prop: 'buttonColor',
+            label: '按钮颜色',
+            minWidth: 100,
+          },
         )
       }
       cols.push({ type: 'slot', slot: 'code', prop: 'code', label: '权限编码', minWidth: 240 })

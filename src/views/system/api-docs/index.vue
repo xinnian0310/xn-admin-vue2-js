@@ -1,8 +1,5 @@
 <template>
-  <xnPageLayout
-    class="api-docs-page"
-    :show-view-switch="false"
-  >
+  <xnPageLayout class="api-docs-page" :show-view-switch="false">
     <template #toolbar>
       <span class="api-docs-hint">{{ modeHint }}</span>
     </template>

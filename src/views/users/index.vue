@@ -220,7 +220,9 @@ export default {
       const roleExample =
         roleOptions.find((o) => o.value === 'USER')?.label || roleOptions[0]?.label || '普通用户'
       const unitExample =
-        unitOptions.find((o) => o.value === 'TECH_RD1')?.label || unitOptions[0]?.label || '研发一部'
+        unitOptions.find((o) => o.value === 'TECH_RD1')?.label ||
+        unitOptions[0]?.label ||
+        '研发一部'
       const postOptions = this.posts.map((p) => ({ label: p.name, value: p.code }))
       const postExample =
         postOptions.find((o) => o.value === 'staff')?.label || postOptions[0]?.label || '普通员工'

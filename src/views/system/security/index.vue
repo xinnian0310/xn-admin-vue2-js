@@ -288,7 +288,8 @@ export default {
     },
     async buttonClick(action) {
       if (action === 'refresh' || action === 'view') await this.loadData()
-      else if (action === 'edit' || action === 'update' || action === 'save') await this.handleSave()
+      else if (action === 'edit' || action === 'update' || action === 'save')
+        await this.handleSave()
     },
     onTableAction(payload) {
       if (payload.action === 'unlock') this.handleUnlock(String(payload.row.username ?? ''))
