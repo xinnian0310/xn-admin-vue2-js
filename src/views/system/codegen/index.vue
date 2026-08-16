@@ -193,6 +193,7 @@ import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { generate, listColumns, listTables } from '@/api/codegen'
+import { showCaughtError } from '@/utils/request'
 
 const fallbackSearchItems = [
   { label: '综合查询', prop: 'FuzzyWord', type: 'input', placeholder: '搜索表名/备注' },
@@ -322,7 +323,7 @@ export default {
         this.allTables = res.data ?? []
         this.applyFilter()
       } catch (e) {
-        ElMessage.error(e instanceof Error ? e.message : '加载库表失败')
+        showCaughtError(e, '加载库表失败')
       } finally {
         this.loading = false
       }
@@ -411,7 +412,7 @@ export default {
           required: c.required,
         }))
       } catch (e) {
-        ElMessage.error(e instanceof Error ? e.message : '加载表结构失败')
+        showCaughtError(e, '加载表结构失败')
         this.wizardVisible = false
       } finally {
         this.wizardLoading = false
@@ -450,7 +451,7 @@ export default {
         )
         this.wizardVisible = false
       } catch (e) {
-        ElMessage.error(e instanceof Error ? e.message : '生成失败')
+        showCaughtError(e, '生成失败')
       } finally {
         this.generating = false
       }

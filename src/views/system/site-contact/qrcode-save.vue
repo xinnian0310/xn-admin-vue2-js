@@ -58,6 +58,7 @@ import { ElMessage } from 'element-plus'
 import { markRaw } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { uploadDonationQrcode } from '@/api/site-contact'
+import { showCaughtError } from '@/utils/request'
 import { saveDialogTitle } from '@/types/save'
 
 export default {
@@ -147,7 +148,7 @@ export default {
       } catch (e) {
         this.form.src = ''
         this.fileList = []
-        ElMessage.error(e?.message || '上传失败')
+        showCaughtError(e, '上传失败')
         opt.onError?.(e)
       } finally {
         this.uploading = false

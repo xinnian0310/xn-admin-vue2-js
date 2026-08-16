@@ -20,7 +20,11 @@
       :closable="false"
       show-icon
       class="profile-page__alert"
-      title="超级管理员仅可修改密码，不可改用户名与基本资料"
+      :title="
+        canEditPassword
+          ? '超级管理员仅可修改密码，不可改用户名与基本资料'
+          : '管理员不可修改个人信息与密码'
+      "
     />
 
     <div class="profile-page__body">
@@ -145,14 +149,15 @@ import { storeToRefs } from 'pinia'
 import { changePassword, getPasswordRules, uploadAvatar } from '@/api/auth'
 import { usePermissionStore } from '@/stores/permission'
 import { useUserStore } from '@/stores/user'
+import { showCaughtError } from '@/utils/request'
 
 export default {
   name: 'Profile',
   setup() {
     const userStore = useUserStore()
     const permissionStore = usePermissionStore()
-    const { isSuperAdmin } = storeToRefs(permissionStore)
-    return { userStore, isSuperAdmin, Refresh: markRaw(Refresh) }
+    const { isSuperAdmin, roles } = storeToRefs(permissionStore)
+    return { userStore, isSuperAdmin, roles, Refresh: markRaw(Refresh) }
   },
   data() {
     return {
@@ -187,10 +192,10 @@ export default {
   },
   computed: {
     canEditProfile() {
-      return !this.isSuperAdmin
+      return !this.isSuperAdmin && !(this.roles || []).includes('ADMIN')
     },
     canEditPassword() {
-      return true
+      return !(this.roles || []).includes('ADMIN')
     },
     canEdit() {
       return this.canEditProfile || this.canEditPassword
@@ -329,8 +334,8 @@ export default {
       try {
         await this.userStore.fetchProfile()
         this.syncForm()
-      } catch {
-        ElMessage.error('获取个人信息失败')
+      } catch (e) {
+        showCaughtError(e, '获取个人信息失败')
       } finally {
         this.loading = false
       }
@@ -377,8 +382,7 @@ export default {
         }
         this.editing = false
       } catch (e) {
-        const msg = e && typeof e === 'object' && 'message' in e ? String(e.message) : '保存失败'
-        ElMessage.error(msg || '保存失败')
+        showCaughtError(e, '保存失败')
       } finally {
         this.saving = false
       }
@@ -391,8 +395,7 @@ export default {
         ElMessage.success('头像已更新')
         options.onSuccess?.(res)
       } catch (e) {
-        const msg = e && typeof e === 'object' && 'message' in e ? String(e.message) : '上传失败'
-        ElMessage.error(msg || '上传失败')
+        showCaughtError(e, '上传失败')
         options.onError?.(e)
       } finally {
         this.avatarUploading = false

@@ -84,6 +84,7 @@ import XnImportDialog from '@/components/xnImport/xnImportDialog.vue'
 import PostSave from './save.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { batchRemove, exportPosts, importPosts, list, remove } from '@/api/post'
+import { showCaughtError } from '@/utils/request'
 
 const importColumns = [
   { key: 'code', title: '岗位编码', required: true, example: 'engineer', width: 14 },
@@ -187,7 +188,7 @@ export default {
           })
           ElMessage.success('导出成功')
         } catch (e) {
-          ElMessage.error(e instanceof Error ? e.message : '导出失败')
+          showCaughtError(e, '导出失败')
         }
       } else if (action === 'edit' && this.selected.length === 1)
         this.openSave('edit', this.selected[0].id)
