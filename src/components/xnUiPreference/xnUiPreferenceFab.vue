@@ -288,6 +288,7 @@ export default {
     width 0.18s ease,
     filter 0.15s ease;
   touch-action: none;
+  -webkit-user-select: none;
   user-select: none;
 }
 

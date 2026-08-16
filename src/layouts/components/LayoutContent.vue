@@ -115,6 +115,7 @@ export default {
   font-size: 12px;
   line-height: 1.5;
   text-align: center;
+  -webkit-user-select: none;
   user-select: none;
 }
 </style>
