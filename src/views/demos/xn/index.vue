@@ -42,11 +42,7 @@
                 />
               </template>
               <template #search>
-                <xnSearch
-                  :search-item="searchItems"
-                  @query-form="onQueryForm"
-                  @reset="onReset"
-                />
+                <xnSearch :search-item="searchItems" @query-form="onQueryForm" @reset="onReset" />
               </template>
               <template #toolbar>
                 <xnButton
@@ -83,11 +79,7 @@
             title="根据 SearchItem[] 配置驱动的查询表单，支持 input / number / select / date / daterange / datetime，字段过多时可折叠。"
             class="demo-intro"
           />
-          <xnSearch
-            :search-item="searchItems"
-            :collapse-count="2"
-            @query-form="onQueryForm"
-          />
+          <xnSearch :search-item="searchItems" :collapse-count="2" @query-form="onQueryForm" />
         </el-card>
       </el-tab-pane>
 
@@ -106,11 +98,7 @@
             title="配置化工具栏：支持权限过滤、按选中行数禁用、下拉分组。动作通过 buttonClick 回调交给页面处理。"
             class="demo-intro"
           />
-          <xnButton
-            :list-item="buttonItems"
-            :selected="selected"
-            @button-click="onButtonClick"
-          />
+          <xnButton :list-item="buttonItems" :selected="selected" @button-click="onButtonClick" />
           <p class="demo-hint">当前选中 {{ selected.length }} 项（可在「页面布局」表格中勾选）。</p>
         </el-card>
       </el-tab-pane>
@@ -192,7 +180,7 @@
             type="info"
             show-icon
             :closable="false"
-            title="富文本编辑器，输出 HTML 字符串，用于公告、站内信等内容编辑。"
+            title="富文本编辑器，图片/视频/附件走 XnUpload；支持公式、@提及、Markdown、链接卡片。"
             class="demo-intro"
           />
           <xnRichEditor v-model="richHtml" height="220px" />
@@ -219,6 +207,70 @@
             :max-length="20"
             title="备注详情"
           />
+        </el-card>
+      </el-tab-pane>
+
+      <el-tab-pane label="大文件上传" name="upload">
+        <el-card shadow="never" class="demo-section">
+          <template #header>
+            <div class="demo-section__head">
+              <span>大文件分片上传</span>
+              <el-tag size="small" type="primary" effect="plain">xnUpload</el-tag>
+            </div>
+          </template>
+          <el-alert
+            type="info"
+            show-icon
+            :closable="false"
+            title="小文件单请求直传，大文件自动分片：Worker 算指纹 → 秒传探测 → 并发上传（失败指数退避重试）→ 服务端合并。可暂停 / 继续 / 取消；刷新页面后重新选择同一文件即可续传。"
+            class="demo-intro"
+          />
+          <el-form :inline="true" size="small" class="demo-upload__form">
+            <el-form-item label="分片大小">
+              <el-select v-model="uploadChunkSize" style="width: 100px">
+                <el-option label="5 MB" :value="5 * 1024 * 1024" />
+                <el-option label="8 MB" :value="8 * 1024 * 1024" />
+                <el-option label="10 MB" :value="10 * 1024 * 1024" />
+                <el-option label="20 MB" :value="20 * 1024 * 1024" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="并发数">
+              <el-input-number v-model="uploadConcurrency" :min="1" :max="8" style="width: 110px" />
+            </el-form-item>
+            <el-form-item label="重试次数">
+              <el-input-number v-model="uploadMaxRetries" :min="0" :max="6" style="width: 110px" />
+            </el-form-item>
+            <el-form-item label="指纹算法">
+              <el-select v-model="uploadHashAlgo" style="width: 170px">
+                <el-option label="分片树摘要（原生，快）" value="sha256-tree" />
+                <el-option label="全量 SHA-256（较慢）" value="sha256" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="秒传">
+              <el-switch v-model="uploadInstant" />
+            </el-form-item>
+            <el-form-item label="断点续传">
+              <el-switch v-model="uploadResume" />
+            </el-form-item>
+            <el-form-item label="计算指纹">
+              <el-switch v-model="uploadHash" />
+            </el-form-item>
+          </el-form>
+          <xnUpload
+            :chunk-size="uploadChunkSize"
+            :concurrency="uploadConcurrency"
+            :max-retries="uploadMaxRetries"
+            :hash-algo="uploadHashAlgo"
+            :enable-instant="uploadInstant"
+            :enable-resume="uploadResume"
+            :enable-hash="uploadHash"
+            :max-size="10 * 1024 * 1024 * 1024"
+            @success="onUploadSuccess"
+            @error="onUploadError"
+          />
+          <div v-if="uploadLogs.length" class="demo-upload__logs">
+            <div v-for="(log, index) in uploadLogs" :key="index">{{ log }}</div>
+          </div>
         </el-card>
       </el-tab-pane>
 
@@ -289,7 +341,8 @@
           />
           <ul class="demo-note-list">
             <li>
-              <strong>xnImport</strong>：Excel 模板下载、预览与导入对话框，多用于用户/字典等批量导入。
+              <strong>xnImport</strong>：Excel
+              模板下载、预览与导入对话框，多用于用户/字典等批量导入。
             </li>
             <li><strong>xnTagsView</strong>：多标签页访问记录，位于顶栏布局中。</li>
             <li><strong>xnNoticeInbox</strong>：公告/消息铃铛与抽屉，位于顶栏。</li>
@@ -317,6 +370,7 @@ import xnRichEditor from '@/components/xnRichEditor/xnRichEditor.vue'
 import xnLongText from '@/components/xnLongText/xnLongText.vue'
 import xnAppIcon from '@/components/xnAppIcon/xnAppIcon.vue'
 import xnAppBrandLogo from '@/components/xnAppBrandLogo/xnAppBrandLogo.vue'
+import xnUpload from '@/components/xnUpload/xnUpload.vue'
 
 export default {
   name: 'DemoXnPage',
@@ -331,6 +385,7 @@ export default {
     xnLongText,
     xnAppIcon,
     xnAppBrandLogo,
+    xnUpload,
   },
   data() {
     return {
@@ -339,6 +394,14 @@ export default {
       icon: 'HomeFilled',
       richHtml: '<p>欢迎使用 <strong>xnRichEditor</strong></p>',
       selected: [],
+      uploadChunkSize: 8 * 1024 * 1024,
+      uploadConcurrency: 3,
+      uploadMaxRetries: 3,
+      uploadHashAlgo: 'sha256-tree',
+      uploadInstant: true,
+      uploadResume: true,
+      uploadHash: true,
+      uploadLogs: [],
       page: 1,
       pageSize: 10,
       treeData: [
@@ -422,8 +485,7 @@ export default {
           id: 2,
           name: '示例用户 B',
           status: 0,
-          remark:
-            '这是一段很长很长的备注内容，用于演示 longText 列在表格中的截断与点击展开效果。',
+          remark: '这是一段很长很长的备注内容，用于演示 longText 列在表格中的截断与点击展开效果。',
         },
         { id: 3, name: '示例用户 C', status: 1, remark: '另一条备注' },
       ],
@@ -433,6 +495,20 @@ export default {
     onTreeClick(node) {
       this.treeKey = String(node.id)
       ElMessage.info(`选中：${String(node.name)}`)
+    },
+    pushUploadLog(text) {
+      this.uploadLogs.unshift(`${new Date().toLocaleTimeString()} · ${text}`)
+      if (this.uploadLogs.length > 8) this.uploadLogs.pop()
+    },
+    onUploadSuccess(file, task) {
+      this.pushUploadLog(
+        `${task.instant ? '秒传命中' : '上传成功'}：${file.name} → ${file.url || file.path}`,
+      )
+      ElMessage.success(`${file.name} ${task.instant ? '秒传完成' : '上传完成'}`)
+    },
+    onUploadError(message, task) {
+      this.pushUploadLog(`失败：${task.name} — ${message}`)
+      ElMessage.error(`${task.name} 上传失败：${message}`)
     },
     onQueryForm(form) {
       ElMessage.info(`查询：${JSON.stringify(form)}`)
@@ -543,5 +619,24 @@ export default {
   line-height: 1.9;
   color: var(--el-text-color-secondary);
   font-size: 13px;
+}
+
+.demo-upload__form {
+  margin-bottom: 4px;
+}
+
+.demo-upload__form :deep(.el-form-item) {
+  margin-bottom: 12px;
+}
+
+.demo-upload__logs {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--el-fill-color-light);
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--el-text-color-secondary);
+  word-break: break-all;
 }
 </style>

@@ -4,28 +4,21 @@
       <div class="system-config-page__heading">
         <h2 class="page-title">系统配置</h2>
         <p class="system-config-page__hint">
-          与前端 app.js 对齐：保存后即时生效。登录页背景/验证码请在「登录页设置」中配置；主题色请在右上角主题面板调整。
+          与前端 app.js
+          对齐：每个分区一张表、一套独立接口，点「修改」后才可编辑，保存后即时生效。登录页背景/验证码请在「登录页设置」中配置；主题色请在右上角主题面板调整。
           「项目名称 / 应用介绍」按当前前端工程（{{ clientId }}）单独存储，不影响其他前端项目。
         </p>
-      </div>
-      <div class="system-config-page__actions">
-        <el-button v-permission="'system-config:view'" :icon="Refresh" @click="loadConfig"
-          >刷新</el-button
-        >
-        <el-button
-          v-permission="'system-config:update'"
-          type="primary"
-          :loading="saving"
-          @click="handleSave"
-        >
-          保存
-        </el-button>
       </div>
     </div>
 
     <el-tabs v-model="activeTab" tab-position="left" class="system-config-page__tabs">
       <el-tab-pane label="应用信息" name="app">
-        <el-form :model="form" label-width="120px" class="system-config-page__form">
+        <el-form
+          :model="form"
+          :disabled="!editing.app"
+          label-width="120px"
+          class="system-config-page__form"
+        >
           <el-form-item label="项目名称" required>
             <el-input
               v-model="form.app.name"
@@ -49,10 +42,10 @@
           <el-form-item label="品牌图标">
             <div>
               <el-upload
-                v-permission="'system-config:update'"
+                :disabled="!editing.app"
                 :file-list="brandIconList"
                 class="brand-uploader"
-                :class="{ 'is-full': brandIconList.length >= 1 }"
+                :class="{ 'is-full': brandIconList.length >= 1 || !editing.app }"
                 list-type="picture-card"
                 accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon"
                 :limit="1"
@@ -88,10 +81,23 @@
             <span class="hint">px；清空表示按比例自适应</span>
           </el-form-item>
         </el-form>
+        <SectionActions
+          :editing="editing.app"
+          :saving="savingSection === 'app'"
+          @edit="startEdit('app')"
+          @save="saveSection('app')"
+          @cancel="cancelEdit('app')"
+          @refresh="refreshSection('app')"
+        />
       </el-tab-pane>
 
       <el-tab-pane label="会话策略" name="session">
-        <el-form :model="form" label-width="140px" class="system-config-page__form">
+        <el-form
+          :model="form"
+          :disabled="!editing.session"
+          label-width="140px"
+          class="system-config-page__form"
+        >
           <el-form-item label="空闲自动登出">
             <el-switch v-model="form.session.idleLogoutEnabled" />
           </el-form-item>
@@ -126,6 +132,14 @@
             <span class="hint">秒</span>
           </el-form-item>
         </el-form>
+        <SectionActions
+          :editing="editing.session"
+          :saving="savingSection === 'session'"
+          @edit="startEdit('session')"
+          @save="saveSection('session')"
+          @cancel="cancelEdit('session')"
+          @refresh="refreshSection('session')"
+        />
       </el-tab-pane>
 
       <el-tab-pane label="布局与 UI" name="ui">
@@ -137,6 +151,7 @@
             </p>
             <el-form
               :model="form"
+              :disabled="!editing.ui"
               label-width="120px"
               class="system-config-page__form system-config-page__form--compact"
             >
@@ -217,12 +232,11 @@
           <section class="ui-split__panel ui-split__panel--aside">
             <div class="ui-split__head">
               <h3 class="ui-split__title">Element Plus 全局</h3>
-              <p class="ui-split__desc">
-                对应本工程 ui.elementPlus。未提交的云端字段由后端深合并保留。主题色请用右上角主题面板。
-              </p>
+              <p class="ui-split__desc">对应本工程 ui.elementPlus。主题色请用右上角主题面板。</p>
             </div>
             <el-form
               :model="form"
+              :disabled="!editing.ui"
               label-width="120px"
               class="system-config-page__form system-config-page__form--compact"
             >
@@ -275,34 +289,23 @@
             </el-form>
           </section>
         </div>
-      </el-tab-pane>
-
-      <el-tab-pane label="对象存储" name="storage">
-        <el-form :model="form" label-width="120px" class="system-config-page__form">
-          <el-alert
-            type="warning"
-            :closable="false"
-            show-icon
-            class="system-config-page__alert"
-            title="仅配置 endpoint / bucket / region；密钥请放在后端，勿写入前端配置。"
-          />
-          <el-form-item label="Endpoint">
-            <el-input
-              v-model="form.storage.minio.endpoint"
-              placeholder="https://minio.example.com"
-            />
-          </el-form-item>
-          <el-form-item label="Bucket">
-            <el-input v-model="form.storage.minio.bucket" />
-          </el-form-item>
-          <el-form-item label="Region">
-            <el-input v-model="form.storage.minio.region" placeholder="可选" />
-          </el-form-item>
-        </el-form>
+        <SectionActions
+          :editing="editing.ui"
+          :saving="savingSection === 'ui'"
+          @edit="startEdit('ui')"
+          @save="saveSection('ui')"
+          @cancel="cancelEdit('ui')"
+          @refresh="refreshSection('ui')"
+        />
       </el-tab-pane>
 
       <el-tab-pane label="日志保留" name="logRetention">
-        <el-form :model="form" label-width="140px" class="system-config-page__form">
+        <el-form
+          :model="form"
+          :disabled="!editing.logRetention"
+          label-width="140px"
+          class="system-config-page__form"
+        >
           <el-alert
             type="info"
             :closable="false"
@@ -347,10 +350,23 @@
             <span class="hint">天</span>
           </el-form-item>
         </el-form>
+        <SectionActions
+          :editing="editing.logRetention"
+          :saving="savingSection === 'logRetention'"
+          @edit="startEdit('logRetention')"
+          @save="saveSection('logRetention')"
+          @cancel="cancelEdit('logRetention')"
+          @refresh="refreshSection('logRetention')"
+        />
       </el-tab-pane>
 
       <el-tab-pane label="数据脱敏" name="sensitiveData">
-        <el-form :model="form" label-width="140px" class="system-config-page__form">
+        <el-form
+          :model="form"
+          :disabled="!editing.sensitiveData"
+          label-width="140px"
+          class="system-config-page__form"
+        >
           <el-alert
             type="info"
             :closable="false"
@@ -369,6 +385,14 @@
             </el-checkbox-group>
           </el-form-item>
         </el-form>
+        <SectionActions
+          :editing="editing.sensitiveData"
+          :saving="savingSection === 'sensitiveData'"
+          @edit="startEdit('sensitiveData')"
+          @save="saveSection('sensitiveData')"
+          @cancel="cancelEdit('sensitiveData')"
+          @refresh="refreshSection('sensitiveData')"
+        />
       </el-tab-pane>
     </el-tabs>
 
@@ -383,8 +407,9 @@
 
 <script>
 import { markRaw } from 'vue'
-import { Plus, Refresh } from '@element-plus/icons-vue'
+import { Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import SectionActions from './section-actions.vue'
 import {
   appConfig,
   applyRemoteAppConfig,
@@ -392,7 +417,12 @@ import {
   captureGlobalUiBaseline,
   defaultAppConfig,
 } from '@/config/app'
-import { getSystemConfig, updateSystemConfig, uploadBrandAsset } from '@/api/system-config'
+import {
+  getSystemConfig,
+  getSystemConfigSection,
+  updateSystemConfigSection,
+  uploadBrandAsset,
+} from '@/api/system-config'
 import { APP_CLIENT_ID } from '@/config/client'
 import { useUiPreferenceStore } from '@/stores/uiPreference'
 import { parsePxInt, toPx } from '@/utils/px'
@@ -414,9 +444,7 @@ function createForm() {
         dialog: { ...d.ui.elementPlus.dialog },
       },
     },
-    storage: {
-      minio: { ...d.storage.minio },
-    },
+    storage: { ...d.storage },
     logRetention: { ...d.logRetention },
     sensitiveData: {
       enabled: d.sensitiveData.enabled,
@@ -427,12 +455,12 @@ function createForm() {
 
 export default {
   name: 'SystemConfig',
+  components: { SectionActions },
   setup() {
     const uiPreferenceStore = useUiPreferenceStore()
     return {
       uiPreferenceStore,
       Plus: markRaw(Plus),
-      Refresh: markRaw(Refresh),
       clientId: APP_CLIENT_ID,
     }
   },
@@ -441,11 +469,20 @@ export default {
       /** 共享兜底 name（写入 app.name）；介绍只存 clients */
       sharedBrand: { name: '' },
       loading: false,
-      saving: false,
+      savingSection: '',
       activeTab: 'app',
       brandIconList: [],
       brandIconPreviewVisible: false,
       brandIconPreviewUrl: '',
+      editing: {
+        app: false,
+        session: false,
+        ui: false,
+        logRetention: false,
+        sensitiveData: false,
+      },
+      /** 进入编辑态时的快照，取消时回滚 */
+      snapshots: {},
       form: createForm(),
     }
   },
@@ -532,7 +569,7 @@ export default {
           dialog: { ...appConfig.ui.elementPlus.dialog },
         },
       },
-      storage: { minio: { ...appConfig.storage.minio } },
+      storage: { ...appConfig.storage },
       logRetention: { ...appConfig.logRetention },
       sensitiveData: {
         enabled: appConfig.sensitiveData.enabled,
@@ -576,10 +613,10 @@ export default {
       this.brandIconPreviewUrl = url
       this.brandIconPreviewVisible = true
     },
-    assignForm(data) {
-      Object.assign(this.form.app, data.app)
-      this.form.app.clients = { ...(data.app?.clients || {}) }
-      this.sharedBrand.name = data.app?.name || ''
+    applyAppSection(app) {
+      Object.assign(this.form.app, app)
+      this.form.app.clients = { ...(app?.clients || {}) }
+      this.sharedBrand.name = app?.name || ''
       const profile = this.form.app.clients[APP_CLIENT_ID]
       // 名称：本工程 profile > 本地默认 > 共享兜底
       if (profile?.name) this.form.app.name = profile.name
@@ -591,24 +628,72 @@ export default {
       this.form.app.logo = icon
       this.form.app.favicon = icon
       this.syncBrandIconList(icon)
-      Object.assign(this.form.session, data.session)
-      Object.assign(this.form.ui.dialog, data.ui.dialog)
-      this.form.ui.layout.mode = data.ui.layout?.mode || 'side'
-      Object.assign(this.form.ui.fontSize, data.ui.fontSize)
-      Object.assign(this.form.ui.tagsView, data.ui.tagsView)
+    },
+    applyUiSection(ui) {
+      Object.assign(this.form.ui.dialog, ui.dialog)
+      this.form.ui.layout.mode = ui.layout?.mode || 'side'
+      Object.assign(this.form.ui.fontSize, ui.fontSize)
+      Object.assign(this.form.ui.tagsView, ui.tagsView)
       Object.assign(this.form.ui.elementPlus, {
-        ...data.ui.elementPlus,
-        button: { ...data.ui.elementPlus.button },
-        message: { ...data.ui.elementPlus.message },
-        dialog: { ...data.ui.elementPlus.dialog },
+        ...ui.elementPlus,
+        button: { ...ui.elementPlus.button },
+        message: { ...ui.elementPlus.message },
+        dialog: { ...ui.elementPlus.dialog },
       })
-      Object.assign(this.form.storage.minio, data.storage?.minio || {})
-      Object.assign(this.form.logRetention, data.logRetention || defaultAppConfig.logRetention)
-      const sd = data.sensitiveData || defaultAppConfig.sensitiveData
-      this.form.sensitiveData.enabled = sd.enabled !== false
+    },
+    applySensitiveSection(sd) {
+      this.form.sensitiveData.enabled = sd?.enabled !== false
       this.form.sensitiveData.fields = [
-        ...(sd.fields?.length ? sd.fields : defaultAppConfig.sensitiveData.fields),
+        ...(sd?.fields?.length ? sd.fields : defaultAppConfig.sensitiveData.fields),
       ]
+    },
+    applySectionData(section, data) {
+      if (data == null) return
+      if (section === 'app') this.applyAppSection(data)
+      else if (section === 'session') Object.assign(this.form.session, data)
+      else if (section === 'ui') this.applyUiSection(data)
+      else if (section === 'logRetention') Object.assign(this.form.logRetention, data)
+      else if (section === 'sensitiveData') this.applySensitiveSection(data)
+    },
+    assignForm(data) {
+      this.applyAppSection(data.app)
+      Object.assign(this.form.session, data.session)
+      this.applyUiSection(data.ui)
+      this.form.storage = { ...(data.storage || {}) }
+      Object.assign(this.form.logRetention, data.logRetention || defaultAppConfig.logRetention)
+      this.applySensitiveSection(data.sensitiveData || defaultAppConfig.sensitiveData)
+    },
+    buildSectionPayload(section) {
+      if (section === 'app') {
+        const icon = this.brandIconUrl()
+        const clientName = this.form.app.name.trim()
+        const clientIntro = this.form.app.intro ?? ''
+        return {
+          ...JSON.parse(JSON.stringify(this.form.app)),
+          logo: icon,
+          favicon: icon,
+          clients: {
+            ...(this.form.app.clients || {}),
+            [APP_CLIENT_ID]: { name: clientName, intro: clientIntro },
+          },
+          name: (this.sharedBrand.name || clientName).trim(),
+          intro: '',
+        }
+      }
+      return JSON.parse(JSON.stringify(this.form[section]))
+    },
+    sectionOfPayload(section, payload) {
+      return payload[section]
+    },
+    startEdit(section) {
+      this.snapshots[section] = JSON.stringify(this.buildSectionPayload(section))
+      this.editing[section] = true
+    },
+    cancelEdit(section) {
+      const raw = this.snapshots[section]
+      if (raw) this.applySectionData(section, JSON.parse(raw))
+      delete this.snapshots[section]
+      this.editing[section] = false
     },
     async loadConfig() {
       this.loading = true
@@ -621,47 +706,55 @@ export default {
         this.loading = false
       }
     },
-    async handleSave() {
-      if (!this.form.app.name?.trim()) {
-        ElMessage.warning('项目名称不能为空')
-        this.activeTab = 'app'
-        return
-      }
-      this.saving = true
+    async refreshSection(section) {
+      this.loading = true
       try {
-        const icon = this.brandIconUrl()
-        this.form.app.logo = icon
-        this.form.app.favicon = icon
-        const payload = JSON.parse(JSON.stringify(this.form))
-        const clientName = payload.app.name.trim()
-        const clientIntro = payload.app.intro ?? ''
-        payload.app.clients = {
-          ...(payload.app.clients || {}),
-          [APP_CLIENT_ID]: { name: clientName, intro: clientIntro },
-        }
-        // 名称保留共享兜底；介绍只写在 clients，根 intro 留空避免与 clients 重复
-        payload.app.name = (this.sharedBrand.name || clientName).trim()
-        payload.app.intro = ''
-        const res = await updateSystemConfig(payload)
+        const res = await getSystemConfigSection(section)
+        this.applySectionData(section, res.data)
+        ElMessage.success('已刷新')
+      } catch (e) {
+        ElMessage.error(e?.message || '刷新失败')
+      } finally {
+        this.loading = false
+      }
+    },
+    validateSection(section) {
+      if (section === 'app' && !this.form.app.name?.trim()) {
+        ElMessage.warning('项目名称不能为空')
+        return false
+      }
+      return true
+    },
+    /** 保存返回的是全量配置，回填时保留本工程的项目名 / 介绍 */
+    withClientBrand(payload) {
+      const clientName =
+        payload.app?.clients?.[APP_CLIENT_ID]?.name ||
+        this.form.app.name ||
+        defaultAppConfig.app.name
+      const clientIntro = payload.app?.clients?.[APP_CLIENT_ID]?.intro ?? this.form.app.intro ?? ''
+      return { ...payload, app: { ...payload.app, name: clientName, intro: clientIntro } }
+    },
+    async saveSection(section) {
+      if (!this.validateSection(section)) return
+      this.savingSection = section
+      try {
+        const res = await updateSystemConfigSection(section, this.buildSectionPayload(section))
         if (res.data) {
-          this.assignForm(res.data)
+          this.applySectionData(section, this.sectionOfPayload(section, res.data))
+          applyRemoteAppConfig(this.withClientBrand(res.data))
+          if (section === 'ui') {
+            captureGlobalUiBaseline()
+            const pref = this.uiPreferenceStore.preference
+            if (pref) applyUserUiPreference(pref)
+          }
         }
-        applyRemoteAppConfig({
-          ...(res.data || payload),
-          app: {
-            ...(res.data || payload).app,
-            name: clientName,
-            intro: clientIntro,
-          },
-        })
-        captureGlobalUiBaseline()
-        const pref = this.uiPreferenceStore.preference
-        if (pref) applyUserUiPreference(pref)
-        ElMessage.success('保存成功，已即时生效（通用配置；用户个人偏好仍优先）')
+        delete this.snapshots[section]
+        this.editing[section] = false
+        ElMessage.success('保存成功，已即时生效')
       } catch (e) {
         ElMessage.error(e?.message || '保存失败')
       } finally {
-        this.saving = false
+        this.savingSection = ''
       }
     },
     async uploadBrandIcon(opt) {
@@ -683,9 +776,16 @@ export default {
 </script>
 
 <style scoped>
-.system-config-page__actions {
+.system-config-page {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.system-config-page > .page-header {
   flex-shrink: 0;
 }
 
@@ -710,19 +810,15 @@ export default {
   color: var(--app-text-muted, #909399);
 }
 
-.system-config-page__field-hint {
-  margin: 6px 0 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--app-text-muted, #909399);
-}
-
 .system-config-page__tabs {
-  min-height: 420px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .system-config-page__tabs :deep(.el-tabs__header.is-left) {
   margin-right: 0;
+  flex-shrink: 0;
 }
 
 .system-config-page__tabs :deep(.el-tabs__nav-wrap.is-left) {
@@ -736,8 +832,18 @@ export default {
 }
 
 .system-config-page__tabs :deep(.el-tabs__content) {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
   padding: 4px 8px 8px 24px;
   overflow: auto;
+}
+
+.section-actions {
+  width: min(100%, 720px);
+  justify-content: center;
+  margin-top: 16px;
+  flex-shrink: 0;
 }
 
 .system-config-page__form {
@@ -748,6 +854,10 @@ export default {
 .system-config-page__form--compact {
   max-width: none;
   width: 100%;
+}
+
+.system-config-page__alert {
+  margin-bottom: 12px;
 }
 
 .ui-split {

@@ -162,18 +162,17 @@
               <el-icon><Coffee /></el-icon><span>捐赠情况</span>
             </div>
           </template>
-          <p class="donation-tip">{{ siteContact.donation.tip }}</p>
-          <div class="donation-body">
-            <div
-              v-for="(qr, idx) in siteContact.donation.qrcodes.filter((q) => q.src)"
-              :key="idx"
-              class="donation-qr"
-            >
+          <p class="donation-tip">{{ home.donation.tip }}</p>
+          <div
+            class="donation-body"
+            :class="{ 'donation-body--single': visibleQrcodes.length === 1 }"
+          >
+            <div v-for="(qr, idx) in visibleQrcodes" :key="idx" class="donation-qr">
               <el-image :src="qr.src" fit="contain" class="donation-qr__img" />
-              <span class="donation-qr__label">{{ qr.label }}</span>
+              <span v-if="qr.label" class="donation-qr__label">{{ qr.label }}</span>
             </div>
             <el-empty
-              v-if="!siteContact.donation.qrcodes.some((q) => q.src)"
+              v-if="!visibleQrcodes.length"
               description="暂未配置捐赠二维码"
               :image-size="56"
             />
@@ -254,10 +253,6 @@ export default {
     return {
       siteContact: {
         contacts: [...homeConfig.contacts],
-        donation: {
-          tip: homeConfig.donation.tip,
-          qrcodes: homeConfig.donation.qrcodes.map((q) => ({ ...q })),
-        },
       },
     }
   },
@@ -267,6 +262,10 @@ export default {
     },
     introDescription() {
       return appConfig.app.intro?.trim() || homeConfig.intro.description
+    },
+    visibleQrcodes() {
+      // 捐赠二维码固定用本地配置，不接受接口下发
+      return homeConfig.donation.qrcodes.filter((q) => q.src)
     },
   },
   mounted() {
@@ -291,12 +290,6 @@ export default {
         const data = res.data
         if (data?.contacts?.length) {
           this.siteContact.contacts = data.contacts
-        }
-        if (data?.donation) {
-          this.siteContact.donation.tip = data.donation.tip || this.siteContact.donation.tip
-          if (data.donation.qrcodes?.length) {
-            this.siteContact.donation.qrcodes = data.donation.qrcodes
-          }
         }
       } catch {
         // 后端未就绪时沿用本地默认配置
@@ -757,6 +750,18 @@ export default {
   height: 220px;
   border-radius: 10px;
   border: 1px solid var(--app-border-color);
+}
+
+/* 单张合图（微信 + 支付宝）按原比例铺满卡片 */
+.donation-body--single .donation-qr {
+  width: 100%;
+}
+
+.donation-body--single .donation-qr__img {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  aspect-ratio: 1024 / 682;
 }
 
 .donation-qr__label {

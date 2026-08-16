@@ -134,7 +134,12 @@
         <el-input :model-value="selectedRoute?.title" disabled />
       </el-form-item>
       <el-form-item label="权限类型">
-        <el-tag :type="typeTagType(form.type)">{{ typeLabel(form.type) }}</el-tag>
+        <el-radio-group v-if="!isEdit" v-model="form.type" @change="onTypeChange">
+          <el-radio-button v-for="tab in tabs" :key="tab.type" :value="tab.type">
+            {{ tab.label }}
+          </el-radio-button>
+        </el-radio-group>
+        <el-tag v-else :type="typeTagType(form.type)">{{ typeLabel(form.type) }}</el-tag>
       </el-form-item>
       <el-form-item label="名称" prop="name">
         <el-input
@@ -475,6 +480,18 @@ export default {
       if (this.isEdit) return
       this.form.code = this.buildAutoCode()
     },
+    /** 当前菜单下指定类型的下一个排序（max + 1，至少为 1） */
+    nextSort(type) {
+      const list = this.groups[type] ?? []
+      if (!list.length) return 1
+      return Math.max(...list.map((item) => item.sort ?? 0)) + 1
+    },
+    /** 切换类型后按钮/接口字段互斥，清掉上一类型残留的校验提示 */
+    onTypeChange() {
+      this.$refs.formRef?.clearValidate(['action', 'method', 'path'])
+      if (!this.isEdit) this.form.sort = this.nextSort(this.form.type)
+      this.syncCodeFromForm()
+    },
     onNameChange() {
       if (this.isEdit || !this.isButtonType || this.form.action) return
       const name = this.form.name.trim()
@@ -603,7 +620,12 @@ export default {
       if (!this.selectedMenu) return
       this.isEdit = false
       this.editingRow = null
-      this.form = { ...emptyForm(), type, parentId: this.selectedMenu.id }
+      this.form = {
+        ...emptyForm(),
+        type,
+        parentId: this.selectedMenu.id,
+        sort: this.nextSort(type),
+      }
       this.dialogVisible = true
       this.$nextTick(() => this.syncCodeFromForm())
     },
@@ -678,6 +700,7 @@ export default {
         } else {
           await create(payload)
           ElMessage.success('新增成功')
+          this.activeType = payload.type
         }
         this.dialogVisible = false
         await this.loadData(true)

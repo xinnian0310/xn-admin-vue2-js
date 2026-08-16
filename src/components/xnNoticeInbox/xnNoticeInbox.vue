@@ -69,7 +69,29 @@
           <span>{{ formatDateTime(noticeStore.activeNotice.readAt) }}</span>
         </div>
       </div>
-      <div class="notice-detail__content" v-html="noticeStore.activeNotice.content" />
+      <div v-if="activeAttachments.length" class="notice-detail__attachment">
+        <span class="label">附件</span>
+        <div class="notice-detail__attachment-list">
+          <div
+            v-for="item in activeAttachments"
+            :key="item.path"
+            class="notice-detail__attachment-row"
+          >
+            <el-link
+              type="primary"
+              :href="resolveAttachmentUrl(item.path)"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ item.name }}
+            </el-link>
+            <el-button link type="primary" @click="openKkFileViewPreview(item.path, item.name)">
+              查看
+            </el-button>
+          </div>
+        </div>
+      </div>
+      <div class="notice-detail__content xn-rich-html" v-html="contentHtml" />
     </div>
     <template #footer>
       <el-button type="primary" @click="detailVisible = false">关闭</el-button>
@@ -79,15 +101,25 @@
 
 <script>
 import { useNoticeStore } from '@/stores/notice'
+import { resolveAttachmentUrl } from '@/config/app'
+import { openKkFileViewPreview } from '@/utils/kk-file-view'
 import { formatDateTime } from '@/utils/datetime'
+import { resolveAttachments } from '@/utils/attachment'
+import { decorateRichHtml } from '@/utils/rich-editor'
 
 export default {
   name: 'XnNoticeInbox',
   setup() {
     const noticeStore = useNoticeStore()
-    return { noticeStore, formatDateTime }
+    return { noticeStore, formatDateTime, resolveAttachmentUrl, openKkFileViewPreview }
   },
   computed: {
+    activeAttachments() {
+      return resolveAttachments(this.noticeStore.activeNotice)
+    },
+    contentHtml() {
+      return decorateRichHtml(this.noticeStore.activeNotice?.content)
+    },
     visible: {
       get() {
         return this.noticeStore.drawerVisible
@@ -191,6 +223,32 @@ export default {
   overflow-y: auto;
   line-height: 1.7;
   word-break: break-word;
+}
+
+.notice-detail__attachment {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.notice-detail__attachment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.notice-detail__attachment-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.notice-detail__attachment .label {
+  color: var(--app-text-muted, #909399);
 }
 
 .notice-detail__content :deep(img) {

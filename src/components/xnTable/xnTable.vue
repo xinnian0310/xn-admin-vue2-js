@@ -707,7 +707,7 @@ export default {
         return
       }
       // Prefer @refresh when parent listens; else fall back to page-change
-      if (this.$attrs.onRefresh || this.$listeners?.refresh) {
+      if (this.$attrs.onRefresh) {
         this.$emit('refresh')
         return
       }

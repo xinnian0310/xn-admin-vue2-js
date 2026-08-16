@@ -58,7 +58,29 @@
         <span>发送人：{{ current.senderName || '—' }}</span>
         <span>发送时间：{{ formatDateTime(current.sentAt) }}</span>
       </div>
-      <div class="message-detail__content" v-html="current.content" />
+      <div v-if="currentAttachments.length" class="message-detail__attachment">
+        <span>附件：</span>
+        <div class="message-detail__attachment-list">
+          <div
+            v-for="item in currentAttachments"
+            :key="item.path"
+            class="message-detail__attachment-row"
+          >
+            <el-link
+              type="primary"
+              :href="resolveAttachmentUrl(item.path)"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ item.name }}
+            </el-link>
+            <el-button link type="primary" @click="openKkFileViewPreview(item.path, item.name)">
+              查看
+            </el-button>
+          </div>
+        </div>
+      </div>
+      <div class="message-detail__content xn-rich-html" v-html="contentHtml" />
     </div>
   </el-dialog>
 </template>
@@ -72,7 +94,11 @@ import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { batchRemoveMine, listMine, markRead, removeMine, unreadCount } from '@/api/message'
+import { resolveAttachmentUrl } from '@/config/app'
+import { openKkFileViewPreview } from '@/utils/kk-file-view'
 import { formatDateTime } from '@/utils/datetime'
+import { resolveAttachments } from '@/utils/attachment'
+import { decorateRichHtml } from '@/utils/rich-editor'
 
 const columns = [
   { type: 'selection', width: 50, fixed: true },
@@ -106,11 +132,21 @@ export default {
       columns,
     }
   },
+  computed: {
+    currentAttachments() {
+      return resolveAttachments(this.current)
+    },
+    contentHtml() {
+      return decorateRichHtml(this.current?.content)
+    },
+  },
   mounted() {
     this.loadData()
   },
   methods: {
     formatDateTime,
+    resolveAttachmentUrl,
+    openKkFileViewPreview,
     selectionChangeHandle(rows) {
       this.selected = rows
     },
@@ -218,6 +254,28 @@ export default {
   margin-bottom: 16px;
   color: var(--el-text-color-secondary);
   font-size: 13px;
+}
+
+.message-detail__attachment {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.message-detail__attachment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.message-detail__attachment-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .message-detail__content {

@@ -201,9 +201,6 @@ export default {
     passwordFormDisabled() {
       return !this.canEditPassword || !this.editing
     },
-    formDisabled() {
-      return this.profileFormDisabled
-    },
     user() {
       return this.userStore.user
     },
