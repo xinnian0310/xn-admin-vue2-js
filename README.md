@@ -1,5 +1,7 @@
 # xn-admin-vue2-js
 
+[简体中文](README.md) | [English](README.en.md)
+
 心念后台管理系统前端：Vue 3 + **JavaScript** + Vite + Element Plus（**Options API**：`data` / `methods` / `computed` / `watch`）。
 
 xn-admin-vue2-js 是「心念后台」的 JavaScript 管理端，采用 Vue 3 Options API（`data` / `methods` / `computed` / `watch`）；目录名表示第二套 JS 写法，并非 Vue 2 运行时。功能与基准仓库 xn-admin-vue3-ts 对齐，共用微服务后端 xn-admin-cloud，适合习惯 Options 写法的团队二次开发。内置登录鉴权、动态菜单、RBAC、CRUD、主题布局、监控与文件任务等完整能力。采用 Apache License 2.0 开源，**可商用、可自用**。
