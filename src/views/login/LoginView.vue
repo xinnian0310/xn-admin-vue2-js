@@ -15,8 +15,9 @@
           <div class="brand-logo-plate">
             <img
               class="brand-logo"
-              :src="appConfig.app.logo || '/xinnian-tech-logo.png'"
+              :src="logoSrc"
               alt="心念科技"
+              @error="onLogoError"
             />
           </div>
           <p class="brand-slogan">心有所念，码有所成</p>
@@ -148,7 +149,7 @@ import { markRaw } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { User, Lock } from '@element-plus/icons-vue'
-import { appConfig } from '@/config/app'
+import { appConfig, defaultAppConfig } from '@/config/app'
 import { homeConfig } from '@/config/home'
 import { useUserStore } from '@/stores/user'
 import { getActive } from '@/api/login-page'
@@ -165,6 +166,7 @@ export default {
       User: markRaw(User),
       Lock: markRaw(Lock),
       appConfig,
+      localLogo: defaultAppConfig.app.logo,
       intro: homeConfig.intro,
       iconMap,
     }
@@ -172,6 +174,7 @@ export default {
   data() {
     return {
       loading: false,
+      logoFailed: false,
       captchaEnabled: false,
       captchaType: null,
       captchaId: '',
@@ -190,6 +193,10 @@ export default {
     }
   },
   computed: {
+    logoSrc() {
+      const configured = (this.appConfig.app.logo || '').trim()
+      return this.logoFailed ? this.localLogo : configured || this.localLogo
+    },
     rules() {
       const base = {
         username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -227,6 +234,9 @@ export default {
     window.removeEventListener('pointerup', this.onSliderEnd)
   },
   methods: {
+    onLogoError() {
+      if (this.logoSrc !== this.localLogo) this.logoFailed = true
+    },
     iconOf(name) {
       return iconMap[name] || ElementPlusIconsVue.InfoFilled
     },

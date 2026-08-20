@@ -1,12 +1,14 @@
 <template>
   <img
-    v-if="resolvedSrc"
+    v-if="!useIconFallback"
     class="app-brand-logo"
+    :key="resolvedSrc"
     :src="resolvedSrc"
     :alt="alt"
     :width="resolvedWidth ?? undefined"
     :height="resolvedHeight ?? undefined"
     :style="sizeStyle"
+    @error="onImgError"
   />
   <el-icon v-else class="app-brand-logo is-fallback" :size="fallbackSize" :style="fallbackStyle">
     <Monitor />
@@ -15,7 +17,7 @@
 
 <script>
 import { Monitor } from '@element-plus/icons-vue'
-import { appConfig } from '@/config/app'
+import { appConfig, defaultAppConfig } from '@/config/app'
 
 export default {
   name: 'XnAppBrandLogo',
@@ -26,10 +28,26 @@ export default {
     height: { required: false, default: undefined },
     alt: { type: String, required: false, default: appConfig.app.name },
   },
+  data() {
+    return {
+      loadFailed: false,
+      localFailed: false,
+    }
+  },
   computed: {
-    resolvedSrc() {
+    localLogo() {
+      return defaultAppConfig.app.logo
+    },
+    configuredSrc() {
       const value = this.src ?? appConfig.app.logo
       return value?.trim() || ''
+    },
+    resolvedSrc() {
+      if (this.loadFailed) return this.localLogo
+      return this.configuredSrc || this.localLogo
+    },
+    useIconFallback() {
+      return this.localFailed
     },
     resolvedWidth() {
       return this.width !== undefined ? this.width : appConfig.app.logoWidth
@@ -60,6 +78,21 @@ export default {
         height: `${this.fallbackSize}px`,
         fontSize: `${this.fallbackSize}px`,
       }
+    },
+  },
+  watch: {
+    configuredSrc() {
+      this.loadFailed = false
+      this.localFailed = false
+    },
+  },
+  methods: {
+    onImgError() {
+      if (this.resolvedSrc !== this.localLogo) {
+        this.loadFailed = true
+        return
+      }
+      this.localFailed = true
     },
   },
 }
