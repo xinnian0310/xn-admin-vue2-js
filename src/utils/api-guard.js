@@ -1,8 +1,12 @@
 const WHITELIST = /* @__PURE__ */ new Set([
   '/api/auth/login',
+  '/api/auth/password-public-key',
+  '/api/auth/register',
   '/api/auth/logout',
   '/api/auth/captcha',
   '/api/auth/captcha/slider',
+  '/api/auth/sms/send',
+  '/api/auth/sms/login',
   '/api/auth/api-registry',
   '/api/login-page-configs/active',
   '/api/system-config/public',

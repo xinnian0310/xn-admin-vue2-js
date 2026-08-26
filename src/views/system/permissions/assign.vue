@@ -1,9 +1,12 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     :title="`分配权限 - ${menuName}`"
     width="920px"
-    destroy-on-close
+    show-fullscreen
+    :show-cancel="false"
+    confirm-text="完成"
+    @confirm="visible = false"
     @closed="handleClosed"
   >
     <el-tabs v-model="activeTab">
@@ -34,19 +37,17 @@
         />
       </el-tab-pane>
     </el-tabs>
-    <template #footer>
-      <el-button type="primary" @click="visible = false">完成</el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { getMenuGroups } from '@/api/permission'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import PermissionAssignPanel from './assign-panel.vue'
 
 export default {
   name: 'PermissionAssign',
-  components: { PermissionAssignPanel },
+  components: { PermissionAssignPanel, xnDialog },
   emits: ['success'],
   data() {
     return {

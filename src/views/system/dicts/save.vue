@@ -1,9 +1,13 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     :title="dialogTitle"
     width="520px"
-    destroy-on-close
+    :show-confirm="mode !== 'view'"
+    :confirm-loading="submitting"
+    confirm-text="保存"
+    :cancel-text="mode === 'view' ? '关闭' : '取消'"
+    @confirm="handleSubmit"
     @closed="handleClosed"
   >
     <el-form
@@ -33,22 +37,18 @@
         <el-input v-model="form.remark" type="textarea" :rows="3" />
       </el-form-item>
     </el-form>
-    <template #footer>
-      <el-button @click="visible = false">{{ mode === 'view' ? '关闭' : '取消' }}</el-button>
-      <el-button v-if="mode !== 'view'" type="primary" :loading="submitting" @click="handleSubmit"
-        >保存</el-button
-      >
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import { get, create, update } from '@/api/dict-type'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { saveDialogTitle } from '@/types/save'
 
 export default {
   name: 'DictTypeSave',
+  components: { xnDialog },
   emits: ['success'],
   data() {
     return {

@@ -45,8 +45,14 @@
     </template>
   </xnPageLayout>
 
-  <el-dialog v-model="detailVisible" title="SQL 详情" width="780px" destroy-on-close>
-    <el-descriptions v-if="current" :column="1" border>
+  <xnDialog
+    v-model="detailVisible"
+    title="SQL 详情"
+    width="780px"
+    :show-confirm="false"
+    cancel-text="关闭"
+  >
+    <el-descriptions v-if="current" :column="1" border class="sql-desc">
       <el-descriptions-item label="执行时间">
         {{ formatDateTime(current.executedAt) }}
       </el-descriptions-item>
@@ -57,7 +63,7 @@
         <pre class="sql-detail">{{ current.sql }}</pre>
       </el-descriptions-item>
     </el-descriptions>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
@@ -68,6 +74,7 @@ import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
 import { usePageUi } from '@/composables/usePageUi'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { cleanSqlMonitor, getSqlMonitor, removeSqlRecord } from '@/api/monitor'
 import { formatDateTime } from '@/utils/datetime'
 
@@ -90,6 +97,7 @@ export default {
     xnButton,
     xnTableActions,
     xnTable,
+    xnDialog,
   },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/monitor/sql')
@@ -191,7 +199,6 @@ export default {
         ElMessage.warning('无法删除该记录')
         return
       }
-      await ElMessageBox.confirm('确定删除该条 SQL 记录吗？', '删除确认', { type: 'warning' })
       await removeSqlRecord(row.id)
       ElMessage.success('删除成功')
       this.loadData()
@@ -218,6 +225,16 @@ export default {
 </script>
 
 <style scoped>
+.sql-desc :deep(.el-descriptions__table) {
+  table-layout: auto;
+}
+
+.sql-desc :deep(.el-descriptions__label) {
+  width: auto;
+  max-width: 200px;
+  white-space: nowrap;
+}
+
 .sql-detail {
   margin: 0;
   white-space: pre-wrap;

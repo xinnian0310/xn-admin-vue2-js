@@ -4,7 +4,12 @@
       <xnSearch :search-item="searchItems" @query-form="inquires" @reset="reset" />
     </template>
     <template #toolbar>
-      <xnButton :list-item="buttonItems" :selected="selected" @button-click="buttonClick" />
+      <xnButton
+        :list-item="buttonItems"
+        :selected="selected"
+        :export-request="handleExport"
+        @button-click="buttonClick"
+      />
     </template>
     <template #table>
       <xnTable
@@ -29,25 +34,30 @@
     </template>
   </xnPageLayout>
 
-  <el-dialog v-model="detailVisible" title="异常日志详情" width="780px" destroy-on-close>
-    <el-descriptions v-if="current" :column="1" border>
-      <el-descriptions-item label="请求">
-        {{ current.requestMethod || '—' }} {{ current.requestUrl || '' }}
-      </el-descriptions-item>
-      <el-descriptions-item label="方法">{{ current.method || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="类名">{{ current.className || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="异常">{{ current.exceptionName || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="操作人">{{ current.operatorName || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="IP">{{ current.ip || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="时间">{{ current.createdAt }}</el-descriptions-item>
-      <el-descriptions-item label="信息">
-        <pre class="log-pre">{{ current.message || '—' }}</pre>
-      </el-descriptions-item>
-      <el-descriptions-item label="堆栈">
-        <pre class="log-pre">{{ current.stackTrace || '—' }}</pre>
-      </el-descriptions-item>
-    </el-descriptions>
-  </el-dialog>
+  <xnDialog
+    v-model="detailVisible"
+    title="异常日志详情"
+    width="860px"
+    :show-confirm="false"
+    cancel-text="关闭"
+  >
+    <xnDesc v-if="current" :column="2" :items="detailItems" />
+    <xnCode
+      v-if="current?.message"
+      title="信息"
+      language="text"
+      :value="current.message"
+      style="margin-top: 12px"
+    />
+    <xnCode
+      v-if="current?.stackTrace"
+      title="堆栈"
+      language="text"
+      :value="current.stackTrace"
+      max-height="320px"
+      style="margin-top: 12px"
+    />
+  </xnDialog>
 </template>
 
 <script>
@@ -57,6 +67,9 @@ import xnSearch from '@/components/xnSearch/xnSearch.vue'
 import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
+import xnDesc from '@/components/xnDesc/xnDesc.vue'
+import xnCode from '@/components/xnCode/xnCode.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { batchRemove, clean, exportExceptionLogs, get, list, remove } from '@/api/exception-log'
 import { rangeToBeginEnd } from '@/utils/download'
@@ -80,6 +93,9 @@ export default {
     xnButton,
     xnTableActions,
     xnTable,
+    xnDialog,
+    xnDesc,
+    xnCode,
   },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/system/logs/exception')
@@ -98,6 +114,22 @@ export default {
       current: null,
       columns,
     }
+  },
+  computed: {
+    detailItems() {
+      const row = this.current
+      if (!row) return []
+      const request = [row.requestMethod, row.requestUrl].filter(Boolean).join(' ')
+      return [
+        { label: '请求', value: request, span: 2, type: 'copy' },
+        { label: '方法', value: row.method, span: 2, type: 'copy' },
+        { label: '类名', value: row.className, span: 2, type: 'copy' },
+        { label: '异常', value: row.exceptionName, type: 'copy' },
+        { label: '操作人', value: row.operatorName },
+        { label: 'IP', value: row.ip, type: 'copy' },
+        { label: '时间', value: row.createdAt },
+      ]
+    },
   },
   mounted() {
     this.loadData()
@@ -133,10 +165,8 @@ export default {
         await this.openDetail(this.selected[0])
       } else if (action === 'delete') await this.handleBatchDelete()
       else if (action === 'clean') await this.handleClean()
-      else if (action === 'export') await this.handleExport()
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm('确定删除这条异常日志吗？', '删除确认', { type: 'warning' })
       await remove(row.id)
       ElMessage.success('已删除')
       this.loadData()
@@ -167,7 +197,6 @@ export default {
     },
     async handleExport() {
       await exportExceptionLogs(this.listParams())
-      ElMessage.success('导出成功')
     },
     async loadData() {
       this.loading = true
@@ -192,16 +221,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.log-pre {
-  margin: 0;
-  max-height: 240px;
-  overflow: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-  font-family: monospace;
-  font-size: 12px;
-  line-height: 1.5;
-}
-</style>

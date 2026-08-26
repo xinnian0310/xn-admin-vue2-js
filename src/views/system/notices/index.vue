@@ -78,7 +78,13 @@
 
   <NoticeSave ref="saveRef" @success="loadData" />
 
-  <el-dialog v-model="readersVisible" title="已读明细" width="640px" destroy-on-close>
+  <xnDialog
+    v-model="readersVisible"
+    title="已读明细"
+    width="640px"
+    :show-confirm="false"
+    cancel-text="关闭"
+  >
     <el-table :data="readerRows" stripe max-height="420" v-loading="readersLoading">
       <el-table-column prop="username" label="用户名" min-width="120" />
       <el-table-column prop="nickname" label="昵称" min-width="120" />
@@ -88,7 +94,7 @@
         </template>
       </el-table-column>
     </el-table>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
@@ -99,6 +105,7 @@ import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
 import NoticeSave from './save.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import {
   list,
@@ -142,6 +149,7 @@ export default {
     xnTableActions,
     xnTable,
     NoticeSave,
+    xnDialog,
   },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/system/notices')
@@ -284,11 +292,6 @@ export default {
         ElMessage.warning('仅草稿可删除')
         return
       }
-      await ElMessageBox.confirm(`确定删除公告「${row.title}」吗？`, '删除确认', {
-        type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-      })
       await remove(row.id)
       ElMessage.success('删除成功')
       this.loadData()

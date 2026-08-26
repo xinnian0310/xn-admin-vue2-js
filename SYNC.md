@@ -2,6 +2,8 @@
 
 本工程为 PRD 目标 B：`xn-admin-vue3(2写法)-js`（Options API）。
 
+**在线演示：** https://vue2.xinniankeji.vip · 官网：https://xinniankeji.vip
+
 | 项              | 说明                                               |
 | --------------- | -------------------------------------------------- |
 | 功能基准        | **xn-admin-vue3-ts**（独立仓库）                   |

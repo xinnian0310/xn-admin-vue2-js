@@ -27,6 +27,19 @@
         </template>
       </el-dropdown>
 
+      <xnExport
+        v-else-if="item.action === 'export' && exportRequest"
+        :request="exportRequest"
+        :text="item.name || '导出'"
+        :type="item.typeColor && item.typeColor !== 'default' ? item.typeColor : 'primary'"
+        :plain="
+          item.typeColor !== 'success' &&
+          item.typeColor !== 'warning' &&
+          item.typeColor !== 'danger'
+        "
+        :disabled="isDisabled(item)"
+      />
+
       <el-button
         v-else
         :type="item.typeColor || 'default'"
@@ -45,11 +58,12 @@ import { markRaw } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { usePermission } from '@/directives/permission'
 import { createDefaultButtonList } from '@/components/xnButton/defaultButtons'
+import xnExport from '@/components/xnExport/xnExport.vue'
 import { resolveIcon } from '@/utils/icons'
 
 export default {
   name: 'xnButton',
-  components: { ArrowDown },
+  components: { ArrowDown, xnExport },
   props: {
     listItem: { required: false },
     selected: { type: Array, required: false, default: () => [] },
@@ -57,6 +71,8 @@ export default {
     updatePermission: { required: false },
     viewPermission: { required: false },
     deletePermission: { required: false },
+    /** 传入后工具栏「导出」直接走 xnExport，不再 buttonClick */
+    exportRequest: { type: Function, default: undefined },
   },
   emits: ['buttonClick'],
   setup() {

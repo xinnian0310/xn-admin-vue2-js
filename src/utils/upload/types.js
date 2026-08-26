@@ -12,13 +12,13 @@ const DEFAULT_MAX_FILE_SIZE = 10 * 1024 * 1024 * 1024
 
 const DEFAULT_UPLOADER_OPTIONS = {
   /** 分片大小（字节）。MinIO 原生分片要求除末片外 ≥ 5MiB */
-  chunkSize: 8 * 1024 * 1024,
+  chunkSize: 50 * 1024 * 1024,
   /** 单个文件内同时上传的分片数 */
   concurrency: 3,
   /** 同时上传的文件数 */
   fileConcurrency: 3,
   /** 单片自动重试次数（不含首次） */
-  maxRetries: 3,
+  maxRetries: 5,
   /** 首次重试等待毫秒数，后续指数退避 */
   retryDelay: 1000,
   /** 单片请求超时毫秒数；0 表示不限制 */

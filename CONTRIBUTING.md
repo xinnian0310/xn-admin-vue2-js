@@ -2,6 +2,8 @@
 
 感谢关注本仓库。本工程为独立开源前端（Vue 3 Options API + JavaScript）；功能对齐基准仓库 **xn-admin-vue3-ts**，配套后端为 **xn-admin-cloud**。
 
+**在线演示：** https://vue2.xinniankeji.vip · 官网：https://xinniankeji.vip
+
 目录名 `vue2-js` 表示「第二套 JS 写法」（Options），不是 Vue 2 运行时。
 
 ## 如何贡献

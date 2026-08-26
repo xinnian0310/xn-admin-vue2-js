@@ -1,9 +1,12 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     :title="dialogTitle"
     width="580px"
-    destroy-on-close
+    :show-confirm="mode !== 'view'"
+    confirm-text="确定"
+    :cancel-text="mode === 'view' ? '关闭' : '取消'"
+    @confirm="handleSubmit"
     @closed="handleClosed"
   >
     <el-form
@@ -97,23 +100,19 @@
         </el-form-item>
       </template>
     </el-form>
-
-    <template #footer>
-      <el-button @click="visible = false">{{ mode === 'view' ? '关闭' : '取消' }}</el-button>
-      <el-button v-if="mode !== 'view'" type="primary" @click="handleSubmit">确定</el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import xnAppIcon from '@/components/xnAppIcon/xnAppIcon.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { saveDialogTitle } from '@/types/save'
 import { SITE_CONTACT_TYPE_OPTIONS, resolveContactType } from '@/types/site-contact'
 
 export default {
   name: 'SiteContactItemSave',
-  components: { xnAppIcon },
+  components: { xnAppIcon, xnDialog },
   emits: ['success'],
   setup() {
     return { SITE_CONTACT_TYPE_OPTIONS }

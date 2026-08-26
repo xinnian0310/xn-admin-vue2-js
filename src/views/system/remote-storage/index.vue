@@ -40,11 +40,15 @@
       </template>
     </xnPageLayout>
 
-    <el-dialog
+    <xnDialog
       v-model="dialogVisible"
       :title="dialogTitle"
       width="520px"
-      append-to-body
+      :show-confirm="dialogMode !== 'view'"
+      :confirm-loading="saving"
+      confirm-text="确定"
+      :cancel-text="dialogMode === 'view' ? '关闭' : '取消'"
+      @confirm="submitDialog"
       @closed="onDialogClosed"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
@@ -65,20 +69,7 @@
           />
         </el-form-item>
       </el-form>
-      <template #footer>
-        <el-button :disabled="saving" @click="dialogVisible = false">
-          {{ dialogMode === 'view' ? '关闭' : '取消' }}
-        </el-button>
-        <el-button
-          v-if="dialogMode !== 'view'"
-          type="primary"
-          :loading="saving"
-          @click="submitDialog"
-        >
-          确定
-        </el-button>
-      </template>
-    </el-dialog>
+    </xnDialog>
   </div>
 </template>
 
@@ -90,6 +81,7 @@ import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import { usePageUi } from '@/composables/usePageUi'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { applyRemoteAppConfig, defaultAppConfig } from '@/config/app'
 import { getSystemConfigSection, updateSystemConfigSection } from '@/api/system-config'
 import { APP_CLIENT_ID } from '@/config/client'
@@ -182,6 +174,7 @@ export default {
     xnButton,
     xnTable,
     xnTableActions,
+    xnDialog,
   },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/system/remote-storage')
@@ -338,18 +331,20 @@ export default {
       const ok = await this.persist(next, key == null ? '新增成功' : '修改成功')
       if (ok) this.dialogVisible = false
     },
-    async confirmRemove(rows) {
+    async confirmRemove(rows, skipConfirm = false) {
       if (!rows.length) {
         ElMessage.warning('请先选择要删除的数据')
         return
       }
       const label = rows.length === 1 ? rows[0].name || '该条' : `选中的 ${rows.length} 条`
-      try {
-        await ElMessageBox.confirm(`确认删除${label}远程连接配置？删除后即时生效`, '提示', {
-          type: 'warning',
-        })
-      } catch {
-        return
+      if (!skipConfirm) {
+        try {
+          await ElMessageBox.confirm(`确认删除${label}远程连接配置？删除后即时生效`, '提示', {
+            type: 'warning',
+          })
+        } catch {
+          return
+        }
       }
       const keys = new Set(rows.map((row) => row.key))
       await this.persist(
@@ -372,7 +367,7 @@ export default {
       const row = payload.row
       if (payload.action === 'edit') this.openDialog('edit', row)
       else if (payload.action === 'view') this.openDialog('view', row)
-      else if (payload.action === 'delete') this.confirmRemove([row])
+      else if (payload.action === 'delete') this.confirmRemove([row], true)
     },
   },
 }

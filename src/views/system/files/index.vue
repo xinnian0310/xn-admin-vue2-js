@@ -255,11 +255,6 @@ export default {
         ElMessage.warning('不支持删除目录')
         return
       }
-      await ElMessageBox.confirm(`确定删除文件「${row.path}」吗？`, '删除确认', {
-        type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-      })
       await removeFile(row.path)
       ElMessage.success('删除成功')
       await this.refreshAll()

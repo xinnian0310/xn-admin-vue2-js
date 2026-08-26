@@ -35,7 +35,14 @@
 
   <MessageSave ref="saveRef" @success="loadData" />
 
-  <el-dialog v-model="sendVisible" title="发送站内信" width="520px" destroy-on-close>
+  <xnDialog
+    v-model="sendVisible"
+    title="发送站内信"
+    width="520px"
+    confirm-text="确定发送"
+    :confirm-loading="sendLoading"
+    @confirm="confirmSend"
+  >
     <el-form label-width="100px">
       <el-form-item label="发送范围">
         <el-checkbox v-model="sendForm.sendToAll">全部启用用户</el-checkbox>
@@ -57,13 +64,15 @@
         </el-select>
       </el-form-item>
     </el-form>
-    <template #footer>
-      <el-button @click="sendVisible = false">取消</el-button>
-      <el-button type="primary" :loading="sendLoading" @click="confirmSend">确定发送</el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 
-  <el-dialog v-model="readersVisible" title="已读明细" width="640px" destroy-on-close>
+  <xnDialog
+    v-model="readersVisible"
+    title="已读明细"
+    width="640px"
+    :show-confirm="false"
+    cancel-text="关闭"
+  >
     <el-table :data="readerRows" stripe max-height="420" v-loading="readersLoading">
       <el-table-column prop="username" label="用户名" min-width="120" />
       <el-table-column prop="nickname" label="昵称" min-width="120" />
@@ -71,7 +80,7 @@
         <template #default="{ row }">{{ formatDateTime(row.readAt) }}</template>
       </el-table-column>
     </el-table>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
@@ -82,6 +91,7 @@ import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
 import MessageSave from './save.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { batchRemove, list, readers, remove, send } from '@/api/message'
 import { list as listUsers } from '@/api/user'
@@ -116,6 +126,7 @@ export default {
     xnTableActions,
     xnTable,
     MessageSave,
+    xnDialog,
   },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/system/messages')
@@ -227,7 +238,6 @@ export default {
       this.loadData()
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(`确定删除「${row.title}」吗？`, '删除确认', { type: 'warning' })
       await remove(row.id)
       ElMessage.success('删除成功')
       this.loadData()

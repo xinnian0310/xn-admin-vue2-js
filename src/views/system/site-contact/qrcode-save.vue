@@ -1,9 +1,13 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     :title="dialogTitle"
     width="480px"
-    destroy-on-close
+    :show-confirm="mode !== 'view'"
+    :confirm-loading="uploading"
+    confirm-text="确定"
+    :cancel-text="mode === 'view' ? '关闭' : '取消'"
+    @confirm="handleSubmit"
     @closed="handleClosed"
   >
     <el-form
@@ -36,14 +40,7 @@
         <div class="form-tip">仅可上传 1 张，支持 png / jpg / webp，建议正方形清晰图</div>
       </el-form-item>
     </el-form>
-
-    <template #footer>
-      <el-button @click="visible = false">{{ mode === 'view' ? '关闭' : '取消' }}</el-button>
-      <el-button v-if="mode !== 'view'" type="primary" :loading="uploading" @click="handleSubmit">
-        确定
-      </el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 
   <el-image-viewer
     v-if="previewVisible"
@@ -58,11 +55,13 @@ import { ElMessage } from 'element-plus'
 import { markRaw } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { uploadDonationQrcode } from '@/api/site-contact'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { showCaughtError } from '@/utils/request'
 import { saveDialogTitle } from '@/types/save'
 
 export default {
   name: 'SiteDonationQrSave',
+  components: { xnDialog },
   emits: ['success'],
   setup() {
     return { Plus: markRaw(Plus) }

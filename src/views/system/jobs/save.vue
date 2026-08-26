@@ -1,9 +1,15 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     :title="dialogTitle"
     width="640px"
-    destroy-on-close
+    show-fullscreen
+    :loading="detailLoading"
+    :show-confirm="!readonly"
+    :confirm-loading="submitting"
+    confirm-text="保存"
+    :cancel-text="readonly ? '关闭' : '取消'"
+    @confirm="handleSubmit"
     @closed="handleClosed"
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="100px" :disabled="readonly">
@@ -14,7 +20,7 @@
         <el-input v-model="form.jobKey" maxlength="100" placeholder="唯一标识，如 demo-heartbeat" />
       </el-form-item>
       <el-form-item label="Cron" prop="cron">
-        <el-input v-model="form.cron" placeholder="如 0 */5 * * * ?" />
+        <xnCron v-model="form.cron" />
       </el-form-item>
       <el-form-item label="调用目标" prop="invokeTarget">
         <el-input v-model="form.invokeTarget" placeholder="如 demoJob.heartbeat" />
@@ -44,22 +50,19 @@
         <el-input v-model="form.remark" type="textarea" :rows="2" maxlength="500" />
       </el-form-item>
     </el-form>
-    <template #footer>
-      <el-button @click="visible = false">{{ readonly ? '关闭' : '取消' }}</el-button>
-      <el-button v-if="!readonly" type="primary" :loading="submitting" @click="handleSubmit">
-        保存
-      </el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import { createJob, getJob, updateJob } from '@/api/file-job'
+import xnCron from '@/components/xnCron/xnCron.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { saveDialogTitle } from '@/types/save'
 
 export default {
   name: 'JobsSave',
+  components: { xnCron, xnDialog },
   emits: ['success'],
   data() {
     return {
@@ -67,6 +70,7 @@ export default {
       mode: 'add',
       editingId: null,
       submitting: false,
+      detailLoading: false,
       misfireOptions: [
         { value: '0', label: '默认（放弃本次）' },
         { value: '1', label: '忽略 misfire（尽快补齐）' },
@@ -117,17 +121,22 @@ export default {
       this.editingId = id ?? null
       this.visible = true
       if (id) {
-        const res = await getJob(id)
-        Object.assign(this.form, {
-          name: res.data.name,
-          jobKey: res.data.jobKey,
-          cron: res.data.cron,
-          invokeTarget: res.data.invokeTarget,
-          status: res.data.status,
-          remark: res.data.remark || '',
-          concurrent: res.data.concurrent ?? false,
-          misfirePolicy: res.data.misfirePolicy || '0',
-        })
+        this.detailLoading = true
+        try {
+          const res = await getJob(id)
+          Object.assign(this.form, {
+            name: res.data.name,
+            jobKey: res.data.jobKey,
+            cron: res.data.cron,
+            invokeTarget: res.data.invokeTarget,
+            status: res.data.status,
+            remark: res.data.remark || '',
+            concurrent: res.data.concurrent ?? false,
+            misfirePolicy: res.data.misfirePolicy || '0',
+          })
+        } finally {
+          this.detailLoading = false
+        }
       } else {
         this.resetForm()
       }

@@ -240,11 +240,6 @@ export default {
         ElMessage.warning('内置字典不可删除')
         return
       }
-      await ElMessageBox.confirm(`确定删除字典「${row.name}」吗？`, '删除确认', {
-        type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-      })
       await remove(row.id)
       ElMessage.success('删除成功')
       this.loadData()

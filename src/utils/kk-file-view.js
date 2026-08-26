@@ -16,7 +16,9 @@ function toAbsoluteFileUrl(fileUrl) {
   const value = (fileUrl || '').trim()
   if (!value || /^https?:\/\//i.test(value)) return value
   if (typeof window === 'undefined' || !window.location?.origin) return value
-  return value.startsWith('/') ? `${window.location.origin}${value}` : `${window.location.origin}/${value}`
+  return value.startsWith('/')
+    ? `${window.location.origin}${value}`
+    : `${window.location.origin}/${value}`
 }
 
 function normalizeServiceBase(serviceBase) {

@@ -42,8 +42,14 @@
     </template>
   </xnPageLayout>
 
-  <el-dialog v-model="detailVisible" :title="detailTitle" width="640px" destroy-on-close>
-    <el-descriptions v-if="currentKey" :column="1" border>
+  <xnDialog
+    v-model="detailVisible"
+    :title="detailTitle"
+    width="640px"
+    :show-confirm="false"
+    cancel-text="关闭"
+  >
+    <el-descriptions v-if="currentKey" :column="1" border class="redis-desc">
       <el-descriptions-item label="Key">
         <code class="redis-key">{{ currentKey }}</code>
       </el-descriptions-item>
@@ -52,7 +58,7 @@
         {{ monitor ? `${monitor.host}:${monitor.port}` : '—' }}
       </el-descriptions-item>
     </el-descriptions>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
@@ -63,6 +69,7 @@ import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
 import { usePageUi } from '@/composables/usePageUi'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { deleteRedisKey, flushRedis, getRedisMonitor } from '@/api/monitor'
 
 /** 权限内容：redis:view/delete；table-view/table-delete */
@@ -80,6 +87,7 @@ export default {
     xnButton,
     xnTableActions,
     xnTable,
+    xnDialog,
   },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/monitor/redis')
@@ -198,7 +206,6 @@ export default {
     },
     async handleDeleteKey(key) {
       if (!key) return
-      await ElMessageBox.confirm(`确定删除 Key「${key}」吗？`, '删除确认', { type: 'warning' })
       await deleteRedisKey(key)
       ElMessage.success('删除成功')
       this.loadData()
@@ -226,6 +233,16 @@ export default {
 </script>
 
 <style scoped>
+.redis-desc :deep(.el-descriptions__table) {
+  table-layout: auto;
+}
+
+.redis-desc :deep(.el-descriptions__label) {
+  width: auto;
+  max-width: 200px;
+  white-space: nowrap;
+}
+
 .redis-key {
   font-family: monospace;
   word-break: break-all;

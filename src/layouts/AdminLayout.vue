@@ -1,6 +1,8 @@
 <template>
   <div class="admin-layout" :class="{ 'is-fullscreen': tagsViewStore.isFullscreen }">
-    <component :is="layoutComponent" :is-fullscreen="tagsViewStore.isFullscreen" />
+    <xnWatermark>
+      <component :is="layoutComponent" :is-fullscreen="tagsViewStore.isFullscreen" />
+    </xnWatermark>
 
     <xnUiPreferenceFab />
 
@@ -26,6 +28,7 @@ import { appConfig } from '@/config/app'
 import { useNoticeStore } from '@/stores/notice'
 import { useTagsViewStore } from '@/stores/tagsView'
 import xnUiPreferenceFab from '@/components/xnUiPreference/xnUiPreferenceFab.vue'
+import xnWatermark from '@/components/xnWatermark/xnWatermark.vue'
 import SideLayout from './modes/SideLayout.vue'
 import TopLayout from './modes/TopLayout.vue'
 import MixLayout from './modes/MixLayout.vue'
@@ -43,6 +46,7 @@ export default {
   components: {
     Close,
     xnUiPreferenceFab,
+    xnWatermark,
     SideLayout,
     TopLayout,
     MixLayout,
@@ -81,6 +85,11 @@ export default {
 .admin-layout {
   height: 100vh;
   position: relative;
+}
+
+.admin-layout :deep(.xn-watermark),
+.admin-layout :deep(.el-watermark) {
+  height: 100%;
 }
 
 .exit-fullscreen {

@@ -1,9 +1,14 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     :title="dialogTitle"
     width="640px"
-    destroy-on-close
+    show-fullscreen
+    :show-confirm="mode !== 'view'"
+    :confirm-loading="submitting"
+    confirm-text="保存"
+    :cancel-text="mode === 'view' ? '关闭' : '取消'"
+    @confirm="handleSubmit"
     @closed="handleClosed"
   >
     <el-alert
@@ -104,19 +109,14 @@
         </el-col>
       </el-row>
     </el-form>
-    <template #footer>
-      <el-button @click="visible = false">{{ mode === 'view' ? '关闭' : '取消' }}</el-button>
-      <el-button v-if="mode !== 'view'" type="primary" :loading="submitting" @click="handleSubmit"
-        >保存</el-button
-      >
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import { useCrudApi } from '@/composables/useCrudApi'
 import xnIconPicker from '@/components/xnIconPicker/xnIconPicker.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { autoViewPath, normalizeRoutePath } from '@/utils/route-path'
 import { hasIndexView } from '@/utils/view-loader'
 import { saveDialogTitle } from '@/types/save'
@@ -136,7 +136,7 @@ const typeOptions = [
 
 export default {
   name: 'RoutesSave',
-  components: { xnIconPicker },
+  components: { xnIconPicker, xnDialog },
   emits: ['success'],
   setup() {
     const api = useCrudApi()

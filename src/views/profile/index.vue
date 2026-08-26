@@ -29,17 +29,14 @@
 
     <div class="profile-page__body">
       <aside class="profile-page__avatar">
-        <el-avatar :size="88" :src="avatarUrl">{{ avatarText }}</el-avatar>
+        <xnAvatarCrop
+          :model-value="avatarUrl"
+          :fallback="avatarText"
+          :disabled="!canEditProfile"
+          :request="uploadAvatarFile"
+        />
         <div class="profile-page__name">{{ form.nickname || form.username || '-' }}</div>
         <div class="profile-page__role">{{ roleText }}</div>
-        <el-upload
-          v-if="canEditProfile"
-          :show-file-list="false"
-          :http-request="handleAvatarUpload"
-          accept="image/jpeg,image/png,image/gif,image/webp"
-        >
-          <el-button size="small" :loading="avatarUploading">更换头像</el-button>
-        </el-upload>
       </aside>
 
       <div class="profile-page__main">
@@ -63,7 +60,10 @@
                 <el-input v-model="form.email" maxlength="100" placeholder="请输入邮箱" />
               </el-form-item>
               <el-form-item label="手机" prop="phone">
-                <el-input v-model="form.phone" maxlength="20" placeholder="请输入手机号" />
+                <el-input v-model="form.phone" maxlength="11" placeholder="请输入手机号" />
+              </el-form-item>
+              <el-form-item v-if="editing && canEditProfile && phoneNeedsBind" prop="smsCode">
+                <xnSmsCode v-model="form.smsCode" :phone="form.phone" :request="sendBindSms" />
               </el-form-item>
               <div class="profile-page__meta-grid">
                 <el-form-item label="单位">
@@ -146,13 +146,16 @@ import { markRaw } from 'vue'
 import { Refresh } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { storeToRefs } from 'pinia'
-import { changePassword, getPasswordRules, uploadAvatar } from '@/api/auth'
+import { bindPhone, changePassword, getPasswordRules, sendSms, uploadAvatar } from '@/api/auth'
+import xnAvatarCrop from '@/components/xnAvatarCrop/xnAvatarCrop.vue'
+import xnSmsCode from '@/components/xnSmsCode/xnSmsCode.vue'
 import { usePermissionStore } from '@/stores/permission'
 import { useUserStore } from '@/stores/user'
 import { showCaughtError } from '@/utils/request'
 
 export default {
   name: 'Profile',
+  components: { xnAvatarCrop, xnSmsCode },
   setup() {
     const userStore = useUserStore()
     const permissionStore = usePermissionStore()
@@ -164,13 +167,13 @@ export default {
       loading: false,
       saving: false,
       editing: false,
-      avatarUploading: false,
       passwordRules: null,
       form: {
         username: '',
         nickname: '',
         email: '',
         phone: '',
+        smsCode: '',
       },
       pwdForm: {
         oldPassword: '',
@@ -186,7 +189,27 @@ export default {
           { type: 'email', message: '请输入正确的邮箱', trigger: 'blur' },
           { max: 100, message: '邮箱不能超过100个字符', trigger: 'blur' },
         ],
-        phone: [{ max: 20, message: '手机号不能超过20个字符', trigger: 'blur' }],
+        phone: [{ pattern: /^$|^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }],
+        smsCode: [
+          {
+            validator: (_rule, value, callback) => {
+              if (!this.phoneNeedsBind) {
+                callback()
+                return
+              }
+              if (!value) {
+                callback(new Error('请输入短信验证码'))
+                return
+              }
+              if (!/^\d{6}$/.test(String(value))) {
+                callback(new Error('验证码为6位数字'))
+                return
+              }
+              callback()
+            },
+            trigger: 'blur',
+          },
+        ],
       },
     }
   },
@@ -208,6 +231,11 @@ export default {
     },
     user() {
       return this.userStore.user
+    },
+    phoneNeedsBind() {
+      const next = (this.form.phone || '').trim()
+      const prev = (this.user?.phone || '').trim()
+      return Boolean(next) && next !== prev
     },
     forcePwd() {
       return this.$route.query.forcePwd === '1' || !!this.user?.mustChangePassword
@@ -312,6 +340,7 @@ export default {
       this.form.nickname = this.user?.nickname || ''
       this.form.email = this.user?.email || ''
       this.form.phone = this.user?.phone || ''
+      this.form.smsCode = ''
     },
     resetPwdForm() {
       this.pwdForm.oldPassword = ''
@@ -356,10 +385,14 @@ export default {
       this.saving = true
       try {
         if (this.canEditProfile) {
+          const nextPhone = (this.form.phone || '').trim()
+          if (this.phoneNeedsBind) {
+            await bindPhone({ phone: nextPhone, code: this.form.smsCode })
+          }
           await this.userStore.updateProfile({
             nickname: this.form.nickname,
             email: this.form.email,
-            phone: this.form.phone,
+            ...(this.phoneNeedsBind ? {} : { phone: nextPhone }),
           })
         }
         if (this.forcePwd || hasPwdInput || !this.canEditProfile) {
@@ -387,19 +420,14 @@ export default {
         this.saving = false
       }
     },
-    async handleAvatarUpload(options) {
-      this.avatarUploading = true
-      try {
-        const res = await uploadAvatar(options.file)
-        await this.userStore.fetchProfile()
-        ElMessage.success('头像已更新')
-        options.onSuccess?.(res)
-      } catch (e) {
-        showCaughtError(e, '上传失败')
-        options.onError?.(e)
-      } finally {
-        this.avatarUploading = false
-      }
+    async sendBindSms(phone) {
+      const res = await sendSms({ phone, scene: 'BIND' })
+      return res.data
+    },
+    async uploadAvatarFile(file) {
+      const res = await uploadAvatar(file)
+      await this.userStore.fetchProfile()
+      return res.data?.avatar || ''
     },
     async loadPasswordRules() {
       try {

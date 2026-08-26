@@ -23,13 +23,13 @@ xn-admin-vue2-js 是「心念后台」的 JavaScript 管理端，采用 Vue 3 Op
 
 开源范围仅后端 + 四套管理端：
 
-| 仓库 | Gitee | GitHub | 说明 |
-|------|-------|--------|------|
-| `xn-admin-cloud` | [Gitee](https://gitee.com/jenning/xn-admin-cloud) | [GitHub](https://github.com/xinnian0310/xn-admin-cloud) | 微服务后端（必需） |
-| `xn-admin-vue3-ts` | [Gitee](https://gitee.com/jenning/xn-admin-vue3-ts) | [GitHub](https://github.com/xinnian0310/xn-admin-vue3-ts) | 功能基准（TypeScript） |
-| `xn-admin-vue3-js` | [Gitee](https://gitee.com/jenning/xn-admin-vue3-js) | [GitHub](https://github.com/xinnian0310/xn-admin-vue3-js) | Vue 3 + JavaScript（Composition） |
-| `xn-admin-vue2-js` | [Gitee](https://gitee.com/jenning/xn-admin-vue2-js) | [GitHub](https://github.com/xinnian0310/xn-admin-vue2-js) | 本仓库 |
-| `xn-admin-react-ts` | [Gitee](https://gitee.com/jenning/xn-admin-react-ts) | [GitHub](https://github.com/xinnian0310/xn-admin-react-ts) | React + TypeScript |
+| 仓库                | 在线                                    | Gitee                                                | GitHub                                                     | 说明                              |
+| ------------------- | --------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- | --------------------------------- |
+| `xn-admin-cloud`    | [官网](https://xinniankeji.vip)         | [Gitee](https://gitee.com/jenning/xn-admin-cloud)    | [GitHub](https://github.com/xinnian0310/xn-admin-cloud)    | 微服务后端（必需）                |
+| `xn-admin-vue3-ts`  | [演示](https://vue3-ts.xinniankeji.vip) | [Gitee](https://gitee.com/jenning/xn-admin-vue3-ts)  | [GitHub](https://github.com/xinnian0310/xn-admin-vue3-ts)  | 功能基准（TypeScript）            |
+| `xn-admin-vue3-js`  | [演示](https://vue3-js.xinniankeji.vip) | [Gitee](https://gitee.com/jenning/xn-admin-vue3-js)  | [GitHub](https://github.com/xinnian0310/xn-admin-vue3-js)  | Vue 3 + JavaScript（Composition） |
+| `xn-admin-vue2-js`  | [演示](https://vue2.xinniankeji.vip)    | [Gitee](https://gitee.com/jenning/xn-admin-vue2-js)  | [GitHub](https://github.com/xinnian0310/xn-admin-vue2-js)  | 本仓库                            |
+| `xn-admin-react-ts` | [演示](https://react.xinniankeji.vip)   | [Gitee](https://gitee.com/jenning/xn-admin-react-ts) | [GitHub](https://github.com/xinnian0310/xn-admin-react-ts) | React + TypeScript                |
 
 ## 前提
 
@@ -42,10 +42,10 @@ xn-admin-vue2-js 是「心念后台」的 JavaScript 管理端，采用 Vue 3 Op
 
 与后端种子账号一致（首次初始化，**仅用于本地开发**）：
 
-| 用户名       | 初始密码     | 说明       |
-| ------------ | ------------ | ---------- |
-| `SuperAdmin` | `SuperAdmin` | 超级管理员 |
-| `admin`      | `admin`      | 管理员     |
+| 用户名       | 初始密码  | 说明       |
+| ------------ | --------- | ---------- |
+| `SuperAdmin` | `xinnian` | 超级管理员 |
+| `admin`      | `admin`   | 管理员     |
 
 登录后请尽快修改密码。详见 [SECURITY.md](./SECURITY.md)。
 
@@ -132,28 +132,7 @@ src/
 
 ## 通用组件
 
-每个组件目录下有独立文档，总览见 [`src/components/README.md`](./src/components/README.md)：
-
-| 组件           | 说明                                | 文档                                                |
-| -------------- | ----------------------------------- | --------------------------------------------------- |
-| xnAppIcon      | 统一图标（Element / Iconify / SVG） | [README](./src/components/xnAppIcon/README.md)      |
-| xnAppBrandLogo | 品牌 Logo                           | [README](./src/components/xnAppBrandLogo/README.md) |
-| xnIconPicker   | 图标选择器                          | [README](./src/components/xnIconPicker/README.md)   |
-| xnNoticeInbox  | 消息中心抽屉                        | [README](./src/components/xnNoticeInbox/README.md)  |
-| xnPageLayout   | 列表页骨架                          | [README](./src/components/xnPageLayout/README.md)   |
-| xnRichEditor   | 富文本编辑器                        | [README](./src/components/xnRichEditor/README.md)   |
-| xnSidebarMenu  | 多级菜单                            | [README](./src/components/xnSidebarMenu/README.md)  |
-| xnTagsView     | 页面标签栏                          | [README](./src/components/xnTagsView/README.md)     |
-| xnThemePicker  | 主题设置                            | [README](./src/components/xnThemePicker/README.md)  |
-| xnTreePanel    | 左侧树面板                          | [README](./src/components/xnTreePanel/README.md)    |
-| xnButton       | 工具栏 / 行操作按钮                 | [README](./src/components/xnButton/README.md)       |
-| xnImport       | Excel 导入对话框                    | [README](./src/components/xnImport/README.md)       |
-| xnLongText     | 长文本截断 + 点击弹窗查看           | [README](./src/components/xnLongText/README.md)     |
-| xnSearch       | 配置化搜索表单                      | [README](./src/components/xnSearch/README.md)       |
-| xnTable        | 配置化表格                          | [README](./src/components/xnTable/README.md)        |
-| xnUpload       | 大文件分片上传                      | [README](./src/components/xnUpload/README.md)       |
-| xnErrorPage    | 403 / 404 / 503 错误页              | [README](./src/components/xnErrorPage/README.md)    |
-| xnUiPreference | 个人界面偏好 FAB                    | [README](./src/components/xnUiPreference/README.md) |
+每个组件目录下有独立文档，总览见 [`src/components/README.md`](./src/components/README.md)。
 
 典型列表页组合：
 
@@ -161,11 +140,49 @@ src/
 xnPageLayout
 ├── #aside → xnTreePanel（可选）
 ├── #search → xnSearch
-├── #toolbar → xnButton
+├── #toolbar → xnButton + xnExport
 └── #table → xnTable
 ```
 
 配置通常来自后端 page-ui（`usePageUi`，于 `setup()` 返回）与路由权限。
+
+| 组件           | 说明                                | 文档                                                |
+| -------------- | ----------------------------------- | --------------------------------------------------- |
+| xnAppIcon      | 统一图标（Element / Iconify / SVG） | [README](./src/components/xnAppIcon/README.md)      |
+| xnAppBrandLogo | 品牌 Logo                           | [README](./src/components/xnAppBrandLogo/README.md) |
+| xnAvatarCrop   | 头像裁剪上传                        | [README](./src/components/xnAvatarCrop/README.md)   |
+| xnButton       | 工具栏 / 行操作按钮                 | [README](./src/components/xnButton/README.md)       |
+| xnCaptcha      | 图形 / 滑块验证码                   | [README](./src/components/xnCaptcha/README.md)      |
+| xnCode         | JSON / 代码查看                     | [README](./src/components/xnCode/README.md)         |
+| xnCopy         | 一键复制                            | [README](./src/components/xnCopy/README.md)         |
+| xnCron         | Quartz Cron 编辑器                  | [README](./src/components/xnCron/README.md)         |
+| xnDesc         | 详情描述列表                        | [README](./src/components/xnDesc/README.md)         |
+| xnDialog       | 业务弹窗壳（Vue 包 `el-dialog`）    | [README](./src/components/xnDialog/README.md)       |
+| xnDictSelect   | 字典下拉                            | [README](./src/components/xnDictSelect/README.md)   |
+| xnEmpty        | 无数据 / 无权限等空状态             | [README](./src/components/xnEmpty/README.md)        |
+| xnErrorPage    | 403 / 404 / 503 错误页              | [README](./src/components/xnErrorPage/README.md)    |
+| xnExport       | 导出按钮                            | [README](./src/components/xnExport/README.md)       |
+| xnFilePicker   | 从已上传文件中选择                  | [README](./src/components/xnFilePicker/README.md)   |
+| xnIconPicker   | 图标选择器                          | [README](./src/components/xnIconPicker/README.md)   |
+| xnImport       | Excel 导入对话框                    | [README](./src/components/xnImport/README.md)       |
+| xnImageUpload  | 图片上传（单张 / 多张 + 预览）      | [README](./src/components/xnImageUpload/README.md)  |
+| xnLongText     | 长文本截断 + 弹窗查看               | [README](./src/components/xnLongText/README.md)     |
+| xnNoticeInbox  | 消息中心抽屉                        | [README](./src/components/xnNoticeInbox/README.md)  |
+| xnOrgSelect    | 单位 / 用户 / 角色 / 岗位           | [README](./src/components/xnOrgSelect/README.md)    |
+| xnPageLayout   | 列表页骨架                          | [README](./src/components/xnPageLayout/README.md)   |
+| xnPopconfirm   | 行内确认气泡                        | [README](./src/components/xnPopconfirm/README.md)   |
+| xnRegion       | 省市区级联                          | [README](./src/components/xnRegion/README.md)       |
+| xnRichEditor   | 富文本（wangEditor）                | [README](./src/components/xnRichEditor/README.md)   |
+| xnSearch       | 配置化搜索表单                      | [README](./src/components/xnSearch/README.md)       |
+| xnSidebarMenu  | 多级菜单                            | [README](./src/components/xnSidebarMenu/README.md)  |
+| xnSmsCode      | 短信验证码倒计时                    | [README](./src/components/xnSmsCode/README.md)      |
+| xnTable        | 配置化表格                          | [README](./src/components/xnTable/README.md)        |
+| xnTagsView     | 页面标签栏                          | [README](./src/components/xnTagsView/README.md)     |
+| xnThemePicker  | 主题设置                            | [README](./src/components/xnThemePicker/README.md)  |
+| xnTreePanel    | 左侧树面板                          | [README](./src/components/xnTreePanel/README.md)    |
+| xnUiPreference | 个人界面偏好 FAB                    | [README](./src/components/xnUiPreference/README.md) |
+| xnUpload       | 大文件分片上传                      | [README](./src/components/xnUpload/README.md)       |
+| xnWatermark    | 页面水印                            | [README](./src/components/xnWatermark/README.md)    |
 
 ## 界面预览
 
@@ -196,11 +213,11 @@ xnPageLayout
 
 ### 日志管理
 
-| 模块     | 截图                                                |
-| -------- | --------------------------------------------------- |
-| 登录日志 | ![登录日志](./docs/images/logs-login.png)           |
-| 操作日志 | ![操作日志](./docs/images/logs-oper.png)            |
-| 异常日志 | ![异常日志](./docs/images/logs-exception.png)       |
+| 模块     | 截图                                          |
+| -------- | --------------------------------------------- |
+| 登录日志 | ![登录日志](./docs/images/logs-login.png)     |
+| 操作日志 | ![操作日志](./docs/images/logs-oper.png)      |
+| 异常日志 | ![异常日志](./docs/images/logs-exception.png) |
 
 任务日志页已落地（`/system/jobs/logs`，定时任务页可跳转）。
 
@@ -220,13 +237,15 @@ xnPageLayout
 | 角色权限 | ![角色权限](./docs/images/permissions.png)         |
 | 权限内容 | ![权限内容](./docs/images/permissions-content.png) |
 | 路由管理 | ![路由管理](./docs/images/routes.png)              |
+| 安全策略 | ![安全策略](./docs/images/security.png)            |
 
 ### 内容运营
 
-| 模块     | 截图                                   |
-| -------- | -------------------------------------- |
-| 公告管理 | ![公告管理](./docs/images/notices.png) |
-| 站内信   | ![站内信](./docs/images/messages.png)  |
+| 模块       | 截图                                          |
+| ---------- | --------------------------------------------- |
+| 公告管理   | ![公告管理](./docs/images/notices.png)        |
+| 站内信     | ![站内信](./docs/images/messages.png)         |
+| 联系与捐赠 | ![联系与捐赠](./docs/images/site-contact.png) |
 
 ### 基础数据与系统设置
 
@@ -235,9 +254,7 @@ xnPageLayout
 | 字典管理   | ![字典管理](./docs/images/dicts.png)            |
 | 登录页设置 | ![登录页设置](./docs/images/login-settings.png) |
 | 系统配置   | ![系统配置](./docs/images/config.png)           |
-| 安全策略   | ![安全策略](./docs/images/security.png)         |
 | 远程连接   | ![远程连接](./docs/images/remote-storage.png)   |
-| 联系与捐赠 | ![联系与捐赠](./docs/images/site-contact.png)   |
 
 ### 系统工具
 
@@ -245,9 +262,9 @@ xnPageLayout
 | -------- | --------------------------------------- |
 | 文件管理 | ![文件管理](./docs/images/files.png)    |
 | 定时任务 | ![定时任务](./docs/images/jobs.png)     |
-| 回收站   | ![回收站](./docs/images/recycle.png)    |
-| 代码生成 | ![代码生成](./docs/images/codegen.png)  |
 | 接口文档 | ![接口文档](./docs/images/api-docs.png) |
+| 代码生成 | ![代码生成](./docs/images/codegen.png)  |
+| 回收站   | ![回收站](./docs/images/recycle.png)    |
 
 ## 功能概览
 
@@ -257,6 +274,7 @@ xnPageLayout
 - 页面标签栏、多布局模式、主题（含自定义色与背景）
 - 通用系统配置 + 登录用户个人布局/字号（右下角悬浮入口）
 - 表格列个性化、Excel 导入导出
+- 通用组件：验证码、短信码、字典/组织/省市区、图片上传、文件选择、水印、Cron、业务弹窗等（见 [`src/components/README.md`](./src/components/README.md)）
 - 系统监控：在线用户 / 服务 / Redis / SQL
 - 文件管理、定时任务、回收站、代码生成、接口文档页
 - 公告 WebSocket 推送（`/ws`）
@@ -288,13 +306,13 @@ xnPageLayout
 
 本项目采用 [Apache License 2.0](./LICENSE) **免费开源**，**允许个人自用与商业使用**，无需单独购买授权。
 
-| 用途 | 是否允许 |
-|------|----------|
-| 个人学习、自用部署 | 允许 |
-| 二次开发、修改源码 | 允许 |
-| 商业项目使用、对外交付 | 允许 |
-| 闭源商用 | 允许（须遵守 Apache-2.0） |
-| 再分发源码或编译产物 | 允许 |
+| 用途                   | 是否允许                  |
+| ---------------------- | ------------------------- |
+| 个人学习、自用部署     | 允许                      |
+| 二次开发、修改源码     | 允许                      |
+| 商业项目使用、对外交付 | 允许                      |
+| 闭源商用               | 允许（须遵守 Apache-2.0） |
+| 再分发源码或编译产物   | 允许                      |
 
 使用、修改或分发时请：保留版权声明、本许可证文本及 NOTICE（如有）；对修改过的文件注明变更。软件按「现状」提供，不附带任何明示或默示担保。完整条款见 [LICENSE](./LICENSE)。
 

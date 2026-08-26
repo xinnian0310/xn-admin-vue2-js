@@ -40,6 +40,24 @@
               />
             </el-select>
 
+            <xnDictSelect
+              v-else-if="item.type === 'dict'"
+              v-model="form[item.prop]"
+              :dict-type="item.dictType"
+              :options="item.options"
+              :clearable="item.clearable !== false"
+              :multiple="item.multiple"
+              :placeholder="item.placeholder ?? `请选择${item.label}`"
+            />
+
+            <xnRegion
+              v-else-if="item.type === 'region'"
+              v-model="form[item.prop]"
+              :level="item.level || 3"
+              :clearable="item.clearable !== false"
+              :placeholder="item.placeholder ?? `请选择${item.label}`"
+            />
+
             <el-date-picker
               v-else-if="item.type === 'date'"
               v-model="form[item.prop]"
@@ -97,9 +115,12 @@
 import { markRaw } from 'vue'
 import { CaretBottom, CaretTop, Refresh, Search } from '@element-plus/icons-vue'
 import { SEARCH_FIELD_DEFAULT_WIDTH } from '@/types/search'
+import xnDictSelect from '@/components/xnDictSelect/xnDictSelect.vue'
+import xnRegion from '@/components/xnRegion/xnRegion.vue'
 
 export default {
   name: 'xnSearch',
+  components: { xnDictSelect, xnRegion },
   props: {
     searchItem: { required: true },
     height: { type: String, required: false, default: 'auto' },
@@ -149,7 +170,7 @@ export default {
     createInitialForm() {
       const next = {}
       for (const item of this.searchItem) {
-        if (item.type === 'daterange') {
+        if (item.type === 'daterange' || item.type === 'region') {
           next[item.prop] = []
         } else if (item.type === 'number') {
           next[item.prop] = undefined
@@ -175,6 +196,9 @@ export default {
       for (const key of Object.keys(result)) {
         const value = result[key]
         if (value !== 0 && (value === '' || value === null || value === undefined)) {
+          delete result[key]
+        }
+        if (Array.isArray(value) && value.length === 0) {
           delete result[key]
         }
       }

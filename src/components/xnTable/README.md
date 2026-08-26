@@ -19,28 +19,30 @@
 
 ### Props
 
-| 名称                          | 类型                         | 默认值              | 说明                            |
-| ----------------------------- | ---------------------------- | ------------------- | ------------------------------- |
-| `data`                        | `unknown[]`                  | —                   | 数据模式；与 `api` 二选一       |
-| `api`                         | `string`                     | —                   | API 模式，对应 `@/api/{api}.ts` |
-| `columns`                     | `TableColumnItem[]`          | `[]`                | 列配置                          |
-| `loading`                     | `boolean`                    | `false`             | 数据模式加载态                  |
-| `tableHeight`                 | `string \| number`           | `'100%'`            | 表格高度                        |
-| `showPagination`              | `boolean`                    | `true`              | 是否分页                        |
-| `page` / `pageSize` / `total` | `number`                     | `1` / `10` / `0`    | 分页（data 模式需外部 total）   |
-| `pageSizes`                   | `number[]`                   | `[10, 20, 50, 100]` | 每页条数选项                    |
-| `queryParams`                 | `Record<string, unknown>`    | `{}`                | 查询参数（变更会重置到第 1 页） |
-| `listFilter`                  | `(rows) => unknown[]`        | —                   | 客户端过滤                      |
-| `saveComponent`               | `Component`                  | —                   | 新增/编辑/查看弹窗组件          |
-| `entityName`                  | `string`                     | `'数据'`            | 实体中文名（提示文案）          |
-| `nameField`                   | `string`                     | `'title'`           | 名称字段                        |
-| `idField`                     | `string`                     | `'id'`              | 主键字段                        |
-| `deleteCheck`                 | `(row) => boolean \| string` | —                   | 删除前校验                      |
-| `immediate`                   | `boolean`                    | `true`              | 挂载后是否立即拉数（api 模式）  |
-| `tableKey`                    | `string`                     | —                   | 有值则启用列设置持久化          |
-| `actionItems`                 | `ButtonListItem[]`           | `[]`                | 操作列按钮                      |
-| `autoPageSize`                | `boolean`                    | `true`              | 按表格可视高度自动计算每页条数  |
-| `autoPageSizeMin` / `Max`     | `number`                     | `5` / `200`         | 自动计算条数上下限              |
+| 名称                          | 类型                                            | 默认值              | 说明                            |
+| ----------------------------- | ----------------------------------------------- | ------------------- | ------------------------------- |
+| `data`                        | `unknown[]`                                     | —                   | 数据模式；与 `api` 二选一       |
+| `api`                         | `string`                                        | —                   | API 模式，对应 `@/api/{api}.ts` |
+| `columns`                     | `TableColumnItem[]`                             | `[]`                | 列配置                          |
+| `loading`                     | `boolean`                                       | `false`             | 数据模式加载态                  |
+| `tableHeight`                 | `string \| number`                              | `'100%'`            | 表格高度                        |
+| `showPagination`              | `boolean`                                       | `true`              | 是否分页                        |
+| `page` / `pageSize` / `total` | `number`                                        | `1` / `10` / `0`    | 分页（data 模式需外部 total）   |
+| `pageSizes`                   | `number[]`                                      | `[10, 20, 50, 100]` | 每页条数选项                    |
+| `queryParams`                 | `Record<string, unknown>`                       | `{}`                | 查询参数（变更会重置到第 1 页） |
+| `listFilter`                  | `(rows) => unknown[]`                           | —                   | 客户端过滤                      |
+| `saveComponent`               | `Component`                                     | —                   | 新增/编辑/查看弹窗组件          |
+| `entityName`                  | `string`                                        | `'数据'`            | 实体中文名（提示文案）          |
+| `nameField`                   | `string`                                        | `'title'`           | 名称字段                        |
+| `idField`                     | `string`                                        | `'id'`              | 主键字段                        |
+| `deleteCheck`                 | `(row) => boolean \| string`                    | —                   | 删除前校验                      |
+| `immediate`                   | `boolean`                                       | `true`              | 挂载后是否立即拉数（api 模式）  |
+| `tableKey`                    | `string`                                        | —                   | 有值则启用列设置持久化          |
+| `actionItems`                 | `ButtonListItem[]`                              | `[]`                | 操作列按钮                      |
+| `autoPageSize`                | `boolean`                                       | `true`              | 按表格可视高度自动计算每页条数  |
+| `autoPageSizeMin` / `Max`     | `number`                                        | `5` / `200`         | 自动计算条数上下限              |
+| `emptyType`                   | `'data' \| 'permission' \| 'search' \| 'error'` | `'data'`            | 空状态预设                      |
+| `emptyDescription`            | `string`                                        | —                   | 覆盖空状态副文案                |
 
 `inheritAttrs: false`，其余属性透传到内部 `el-table`。
 
@@ -48,14 +50,15 @@
 
 ### Emits
 
-| 事件                              | 载荷                          |
-| --------------------------------- | ----------------------------- |
-| `update:page` / `update:pageSize` | `number`                      |
-| `page-change`                     | —                             |
-| `selection-change`                | `unknown[]`                   |
-| `switch-change`                   | `{ row, prop, value }`        |
-| `data-change`                     | `{ records, total, loading }` |
-| `success`                         | —（删除/保存成功后）          |
+| 事件                              | 载荷                                                     |
+| --------------------------------- | -------------------------------------------------------- |
+| `update:page` / `update:pageSize` | `number`                                                 |
+| `page-change`                     | —                                                        |
+| `refresh`                         | —（data 模式底部分页刷新；有监听时优先于 `page-change`） |
+| `selection-change`                | `unknown[]`                                              |
+| `switch-change`                   | `{ row, prop, value }`                                   |
+| `data-change`                     | `{ records, total, loading }`                            |
+| `success`                         | —（删除/保存成功后）                                     |
 
 ### Slots
 
@@ -63,6 +66,7 @@
 | ------------ | -------------------------------------------------- |
 | 动态插槽     | `type: 'slot'` 列，名称为 `col.slot \|\| col.prop` |
 | default      | 追加额外 `el-table-column`                         |
+| `empty`      | 覆盖默认 `xnEmpty`                                 |
 | `pagination` | 自定义分页                                         |
 
 ### Expose

@@ -54,12 +54,13 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog
+    <xnDialog
       v-model="formVisible"
       :title="editingId ? `编辑${typeLabel}` : `新增${typeLabel}`"
       width="520px"
-      append-to-body
-      destroy-on-close
+      :confirm-loading="submitting"
+      confirm-text="保存"
+      @confirm="handleSubmit"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
         <el-form-item v-if="!isButtonLike" label="编码" prop="code">
@@ -102,17 +103,14 @@
           <el-input-number v-model="form.sort" :min="0" />
         </el-form-item>
       </el-form>
-      <template #footer>
-        <el-button @click="formVisible = false">取消</el-button>
-        <el-button type="primary" :loading="submitting" @click="handleSubmit">保存</el-button>
-      </template>
-    </el-dialog>
+    </xnDialog>
   </div>
 </template>
 
 <script>
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { create, remove, update } from '@/api/permission'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 
 const TOOLBAR_STANDARD_BUTTONS = [
   { label: '新增', action: 'create', sort: 1 },
@@ -138,6 +136,7 @@ const typeLabels = {
 
 export default {
   name: 'PermissionAssignPanel',
+  components: { xnDialog },
   props: {
     items: { type: Array, required: true },
     type: { type: String, required: true },
@@ -291,7 +290,6 @@ export default {
       })
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(`确定删除「${row.name}」吗？`, '提示', { type: 'warning' })
       await remove(row.id)
       ElMessage.success('删除成功')
       this.$emit('changed')

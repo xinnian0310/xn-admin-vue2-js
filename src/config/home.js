@@ -116,8 +116,8 @@ const homeConfig = {
       icon: 'Message',
       label: '\u90AE\u7BB1',
       type: 'email',
-      value: 'support@xinnian.com',
-      link: 'mailto:support@xinnian.com',
+      value: 'xn0310ning@gmail.com',
+      link: 'mailto:xn0310ning@gmail.com',
     },
     {
       icon: 'Link',

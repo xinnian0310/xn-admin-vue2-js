@@ -1,6 +1,51 @@
-import request from '@/utils/request'
-function login(data) {
-  return request.post('/auth/login', data)
+import axios from 'axios'
+import request, { formatRequestError } from '@/utils/request'
+import { encryptPasswordWithPem } from '@/utils/password-crypto'
+
+function getPasswordPublicKey() {
+  return axios
+    .get('/api/auth/password-public-key', { timeout: 1e4 })
+    .then((res) => {
+      const data = res.data
+      if (data.code !== 200 || !data.data?.publicKey) {
+        return Promise.reject(new Error(data.message || '获取密码公钥失败'))
+      }
+      return data
+    })
+    .catch((error) => {
+      return Promise.reject(new Error(formatRequestError(error, '获取密码公钥失败')))
+    })
+}
+
+async function encryptTransportPassword(plain) {
+  const res = await getPasswordPublicKey()
+  const pem = res.data?.publicKey
+  if (!pem) {
+    throw new Error('获取密码公钥失败')
+  }
+  return encryptPasswordWithPem(plain, pem)
+}
+
+async function login(data) {
+  return request.post('/auth/login', {
+    ...data,
+    password: await encryptTransportPassword(data.password),
+  })
+}
+function sendSms(data) {
+  return request.post('/auth/sms/send', data, { silentError: true })
+}
+function loginBySms(data) {
+  return request.post('/auth/sms/login', data)
+}
+async function register(data) {
+  return request.post('/auth/register', {
+    ...data,
+    password: await encryptTransportPassword(data.password),
+  })
+}
+function bindPhone(data) {
+  return request.post('/auth/me/phone/bind', data)
 }
 function logout(token) {
   return request.post(
@@ -44,6 +89,7 @@ function getApiRegistry() {
   return request.get('/auth/api-registry')
 }
 export {
+  bindPhone,
   changePassword,
   fetchCaptcha,
   getApiRegistry,
@@ -51,8 +97,11 @@ export {
   getCurrentUser,
   getPasswordRules,
   login,
+  loginBySms,
+  register,
   logout,
   refreshToken,
+  sendSms,
   updateCurrentUser,
   uploadAvatar,
   verifySliderCaptcha,

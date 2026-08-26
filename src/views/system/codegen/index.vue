@@ -32,12 +32,13 @@
     </template>
   </xnPageLayout>
 
-  <el-dialog
+  <xnDialog
     v-model="wizardVisible"
     :title="`代码生成 — ${form.tableName || ''}`"
     width="960px"
-    destroy-on-close
-    align-center
+    :show-confirm="false"
+    show-fullscreen
+    :loading="wizardLoading"
     class="codegen-wizard-dialog"
     @closed="onWizardClosed"
   >
@@ -181,12 +182,13 @@
         </el-button>
       </div>
     </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import xnPageLayout from '@/components/xnPageLayout/xnPageLayout.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import xnSearch from '@/components/xnSearch/xnSearch.vue'
 import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
@@ -235,6 +237,7 @@ export default {
     xnButton,
     xnTableActions,
     xnTable,
+    xnDialog,
   },
   setup() {
     const pageUi = usePageUi('/system/codegen')

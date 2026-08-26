@@ -128,7 +128,15 @@
     </template>
   </xnPageLayout>
 
-  <el-dialog v-model="dialogVisible" :title="dialogTitle" width="520px" @closed="resetForm">
+  <xnDialog
+    v-model="dialogVisible"
+    :title="dialogTitle"
+    width="520px"
+    :confirm-loading="submitting"
+    confirm-text="确定"
+    @confirm="handleSubmit"
+    @closed="resetForm"
+  >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
       <el-form-item label="归属菜单">
         <el-input :model-value="selectedRoute?.title" disabled />
@@ -204,16 +212,13 @@
         内置权限的路径 / 方法不可修改，仅可调整名称与排序。
       </div>
     </el-form>
-    <template #footer>
-      <el-button @click="dialogVisible = false">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import xnPageLayout from '@/components/xnPageLayout/xnPageLayout.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import xnTreePanel from '@/components/xnTreePanel/xnTreePanel.vue'
 import xnAppIcon from '@/components/xnAppIcon/xnAppIcon.vue'
 import xnIconPicker from '@/components/xnIconPicker/xnIconPicker.vue'
@@ -273,6 +278,7 @@ export default {
   name: 'PermissionContent',
   components: {
     xnPageLayout,
+    xnDialog,
     xnTreePanel,
     xnAppIcon,
     xnIconPicker,
@@ -713,11 +719,6 @@ export default {
       }
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(`确认删除权限「${row.name}」吗？`, '删除确认', {
-        type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-      })
       await remove(row.id)
       ElMessage.success('删除成功')
       await this.loadData(true)

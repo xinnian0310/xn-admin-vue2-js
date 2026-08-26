@@ -1,15 +1,15 @@
 <template>
-  <el-dialog v-model="visible" title="首页" width="480px" destroy-on-close>
+  <xnDialog v-model="visible" title="首页" width="480px" :show-confirm="false" cancel-text="关闭">
     <el-result icon="info" title="首页无需编辑" sub-title="此弹窗为路由规范占位" />
-    <template #footer>
-      <el-button type="primary" @click="visible = false">关闭</el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
+
 export default {
   name: 'DashboardSave',
+  components: { xnDialog },
   data() {
     return {
       visible: false,

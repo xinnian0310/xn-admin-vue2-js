@@ -173,7 +173,6 @@ export default {
       this.loadData()
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(`确定删除任务「${row.name}」吗？`, '删除确认', { type: 'warning' })
       await removeJob(row.id)
       ElMessage.success('删除成功')
       this.loadData()

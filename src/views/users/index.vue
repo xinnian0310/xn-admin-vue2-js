@@ -26,7 +26,12 @@
     </template>
 
     <template #toolbar>
-      <xnButton :list-item="buttonItems" :selected="selected" @button-click="buttonClick" />
+      <xnButton
+        :list-item="buttonItems"
+        :selected="selected"
+        :export-request="handleExport"
+        @button-click="buttonClick"
+      />
     </template>
 
     <template #table>
@@ -153,7 +158,6 @@ import XnImportDialog from '@/components/xnImport/xnImportDialog.vue'
 import UserSave from './save.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { list, batchRemove, remove, updateStatus, importUsers, exportUsers } from '@/api/user'
-import { showCaughtError } from '@/utils/request'
 import { getOptions as getRoleOptions } from '@/api/role'
 import { getTree as getUnitTree } from '@/api/unit'
 import { getOptions as getPostOptions } from '@/api/post'
@@ -358,10 +362,6 @@ export default {
         this.$refs.importRef?.open()
         return
       }
-      if (action === 'export') {
-        this.handleExport()
-        return
-      }
       if (action === 'edit') {
         if (this.selected.length !== 1) {
           ElMessage.warning('请选择一项操作')
@@ -383,19 +383,14 @@ export default {
       }
     },
     async handleExport() {
-      try {
-        await exportUsers({
-          keyword: String(this.queryForm.FuzzyWord ?? '').trim() || undefined,
-          roleId:
-            this.queryForm.roleId === '' || this.queryForm.roleId == null
-              ? undefined
-              : Number(this.queryForm.roleId),
-          unitId: this.selectedUnitId ?? undefined,
-        })
-        ElMessage.success('导出成功')
-      } catch (e) {
-        showCaughtError(e, '导出失败')
-      }
+      await exportUsers({
+        keyword: String(this.queryForm.FuzzyWord ?? '').trim() || undefined,
+        roleId:
+          this.queryForm.roleId === '' || this.queryForm.roleId == null
+            ? undefined
+            : Number(this.queryForm.roleId),
+        unitId: this.selectedUnitId ?? undefined,
+      })
     },
     inheritedRoles(row) {
       const directIds = new Set((row.roleList || []).map((r) => r.id))
@@ -474,11 +469,6 @@ export default {
         ElMessage.warning('admin 用户不可删除')
         return
       }
-      await ElMessageBox.confirm(`确定删除用户「${row.username}」吗？`, '删除确认', {
-        type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-      })
       await remove(row.id)
       ElMessage.success('删除成功')
       this.loadData()

@@ -13,12 +13,7 @@
         <div class="brand-glow" aria-hidden="true" />
         <div class="brand-inner">
           <div class="brand-logo-plate">
-            <img
-              class="brand-logo"
-              :src="logoSrc"
-              alt="心念科技"
-              @error="onLogoError"
-            />
+            <img class="brand-logo" :src="logoSrc" alt="心念科技" @error="onLogoError" />
           </div>
           <p class="brand-slogan">心有所念，码有所成</p>
           <p class="brand-desc">
@@ -46,81 +41,98 @@
       <section class="login-panel">
         <div class="login-card">
           <header class="login-header">
-            <p class="welcome">欢迎回来</p>
+            <p class="welcome">{{ isRegister ? '创建账号' : '欢迎回来' }}</p>
             <h1>{{ appConfig.app.name }}</h1>
-            <p class="hint">登录以继续管理您的系统</p>
+            <p class="hint">
+              {{ isRegister ? '注册后将以普通用户身份使用系统' : '登录以继续管理您的系统' }}
+            </p>
           </header>
+
+          <el-tabs v-if="!isRegister" v-model="loginTab" class="login-tabs" stretch>
+            <el-tab-pane label="账号登录" name="account" />
+            <el-tab-pane label="短信登录" name="sms" />
+          </el-tabs>
 
           <el-form
             ref="formRef"
             class="login-form"
             :model="form"
             :rules="rules"
+            :validate-on-rule-change="false"
             size="large"
-            @submit.prevent="handleLogin"
+            @submit.prevent="handleSubmit"
           >
-            <el-form-item prop="username">
-              <el-input
-                v-model="form.username"
-                placeholder="请输入用户名"
-                :prefix-icon="User"
-                clearable
-              />
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input
-                v-model="form.password"
-                type="password"
-                placeholder="请输入密码"
-                show-password
-                :prefix-icon="Lock"
-                @keyup.enter="handleLogin"
-              />
-            </el-form-item>
-
-            <el-form-item v-if="captchaEnabled && captchaType === 'IMAGE'" prop="captcha">
-              <div class="captcha-row">
+            <template v-if="isSmsLogin">
+              <el-form-item prop="phone">
                 <el-input
-                  v-model="form.captcha"
-                  placeholder="请输入验证码"
-                  maxlength="6"
-                  @keyup.enter="handleLogin"
+                  v-model="form.phone"
+                  placeholder="请输入手机号"
+                  :prefix-icon="Iphone"
+                  maxlength="11"
+                  clearable
                 />
-                <img
-                  v-if="captchaImage"
-                  :src="captchaImage"
-                  class="captcha-canvas"
-                  title="点击刷新"
-                  alt="验证码"
-                  @click="refreshCaptcha"
+              </el-form-item>
+              <el-form-item prop="smsCode">
+                <xnSmsCode v-model="form.smsCode" :phone="form.phone" :request="sendLoginSms" />
+              </el-form-item>
+              <p class="sms-hint">演示号 18888888888（admin），验证码将弹窗展示</p>
+            </template>
+            <template v-else>
+              <el-form-item prop="username">
+                <el-input
+                  v-model="form.username"
+                  placeholder="请输入用户名"
+                  :prefix-icon="User"
+                  clearable
                 />
-                <div
-                  v-else
-                  class="captcha-canvas captcha-placeholder"
-                  title="点击刷新"
-                  @click="refreshCaptcha"
-                >
-                  刷新
-                </div>
-              </div>
-            </el-form-item>
+              </el-form-item>
+              <el-form-item v-if="isRegister" prop="nickname">
+                <el-input
+                  v-model="form.nickname"
+                  placeholder="昵称（可选）"
+                  :prefix-icon="User"
+                  clearable
+                />
+              </el-form-item>
+              <el-form-item prop="password">
+                <el-input
+                  v-model="form.password"
+                  type="password"
+                  placeholder="请输入密码"
+                  show-password
+                  :prefix-icon="Lock"
+                  @keyup.enter="handleSubmit"
+                />
+              </el-form-item>
+              <el-form-item v-if="isRegister" prop="confirmPassword">
+                <el-input
+                  v-model="form.confirmPassword"
+                  type="password"
+                  placeholder="请确认密码"
+                  show-password
+                  :prefix-icon="Lock"
+                  @keyup.enter="handleSubmit"
+                />
+              </el-form-item>
 
-            <el-form-item v-if="captchaEnabled && captchaType === 'SLIDER'" prop="sliderOk">
-              <div class="slider-wrap">
-                <div class="slider-track">
-                  <div class="slider-progress" :style="{ width: `${sliderPercent}%` }" />
-                  <span class="slider-text">{{ sliderOk ? '验证通过' : '拖动滑块完成验证' }}</span>
-                </div>
-                <div
-                  class="slider-thumb"
-                  :style="{ left: `calc(${sliderPercent}% - 18px)` }"
-                  @pointerdown="onSliderStart"
-                >
-                  <span v-if="sliderOk">✓</span>
-                  <span v-else>»</span>
-                </div>
-              </div>
-            </el-form-item>
+              <el-form-item v-if="captchaEnabled && captchaType === 'IMAGE'" prop="captcha">
+                <xnCaptcha
+                  ref="captchaRef"
+                  v-model="form.captcha"
+                  v-model:captcha-id="captchaId"
+                  type="IMAGE"
+                />
+              </el-form-item>
+
+              <el-form-item v-if="captchaEnabled && captchaType === 'SLIDER'" prop="sliderOk">
+                <xnCaptcha
+                  ref="captchaRef"
+                  v-model:captcha-id="captchaId"
+                  type="SLIDER"
+                  @verified="onSliderVerified"
+                />
+              </el-form-item>
+            </template>
 
             <el-form-item class="login-action">
               <el-button
@@ -128,12 +140,27 @@
                 class="login-btn"
                 :loading="loading"
                 native-type="submit"
-                @click="handleLogin"
+                @click="handleSubmit"
               >
-                登 录
+                {{ isRegister ? '注 册' : '登 录' }}
               </el-button>
             </el-form-item>
           </el-form>
+
+          <div class="login-switch">
+            <template v-if="isRegister">
+              已有账号？
+              <button type="button" class="login-switch-link" @click="switchMode('login')">
+                去登录
+              </button>
+            </template>
+            <template v-else>
+              没有账号？
+              <button type="button" class="login-switch-link" @click="switchMode('register')">
+                去注册
+              </button>
+            </template>
+          </div>
 
           <footer class="login-foot">
             {{ appConfig.app.footer || `${intro.title} · Copyright © 2026` }}
@@ -148,23 +175,27 @@
 import { markRaw } from 'vue'
 import { ElMessage } from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import { User, Lock } from '@element-plus/icons-vue'
+import { User, Lock, Iphone } from '@element-plus/icons-vue'
 import { appConfig, defaultAppConfig } from '@/config/app'
 import { homeConfig } from '@/config/home'
 import { useUserStore } from '@/stores/user'
 import { getActive } from '@/api/login-page'
-import { fetchCaptcha, verifySliderCaptcha } from '@/api/auth'
+import { register as registerApi, sendSms } from '@/api/auth'
+import xnCaptcha from '@/components/xnCaptcha/xnCaptcha.vue'
+import xnSmsCode from '@/components/xnSmsCode/xnSmsCode.vue'
 
 const iconMap = ElementPlusIconsVue
 
 export default {
   name: 'LoginView',
+  components: { xnCaptcha, xnSmsCode },
   setup() {
     const userStore = useUserStore()
     return {
       userStore,
       User: markRaw(User),
       Lock: markRaw(Lock),
+      Iphone: markRaw(Iphone),
       appConfig,
       localLogo: defaultAppConfig.app.logo,
       intro: homeConfig.intro,
@@ -174,33 +205,73 @@ export default {
   data() {
     return {
       loading: false,
+      mode: 'login',
+      loginTab: 'account',
       logoFailed: false,
       captchaEnabled: false,
       captchaType: null,
       captchaId: '',
-      captchaImage: '',
-      sliderPercent: 0,
       sliderOk: false,
-      sliding: false,
-      slideStartX: 0,
-      slideStartPercent: 0,
       form: {
         username: 'admin',
         password: 'admin',
+        nickname: '',
+        confirmPassword: '',
         captcha: '',
         sliderOk: false,
+        phone: '18888888888',
+        smsCode: '',
       },
     }
   },
   computed: {
+    isRegister() {
+      return this.mode === 'register'
+    },
+    isSmsLogin() {
+      return !this.isRegister && this.loginTab === 'sms'
+    },
     logoSrc() {
       const configured = (this.appConfig.app.logo || '').trim()
       return this.logoFailed ? this.localLogo : configured || this.localLogo
     },
     rules() {
+      if (this.isSmsLogin) {
+        return {
+          phone: [
+            { required: true, message: '请输入手机号', trigger: 'blur' },
+            { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' },
+          ],
+          smsCode: [
+            { required: true, message: '请输入短信验证码', trigger: 'blur' },
+            { pattern: /^\d{6}$/, message: '验证码为6位数字', trigger: 'blur' },
+          ],
+        }
+      }
       const base = {
-        username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' },
+          ...(this.isRegister
+            ? [{ min: 2, max: 50, message: '用户名长度需在2-50之间', trigger: 'blur' }]
+            : []),
+        ],
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+      }
+      if (this.isRegister) {
+        base.nickname = [{ max: 50, message: '昵称长度不能超过50', trigger: 'blur' }]
+        base.confirmPassword = [
+          { required: true, message: '请再次输入密码', trigger: 'blur' },
+          {
+            validator: (_r, value, callback) => {
+              if (value !== this.form.password) {
+                callback(new Error('两次输入的密码不一致'))
+                return
+              }
+              callback()
+            },
+            trigger: 'blur',
+          },
+        ]
       }
       if (this.captchaEnabled && this.captchaType === 'IMAGE') {
         base.captcha = [{ required: true, message: '请输入验证码', trigger: 'blur' }]
@@ -230,8 +301,6 @@ export default {
   beforeUnmount() {
     document.documentElement.classList.remove('login-no-scroll')
     document.body.classList.remove('login-no-scroll')
-    window.removeEventListener('pointermove', this.onSliderMove)
-    window.removeEventListener('pointerup', this.onSliderEnd)
   },
   methods: {
     onLogoError() {
@@ -240,63 +309,35 @@ export default {
     iconOf(name) {
       return iconMap[name] || ElementPlusIconsVue.InfoFilled
     },
-    async refreshCaptcha() {
+    refreshCaptcha() {
       if (!this.captchaEnabled) return
       this.form.captcha = ''
-      this.resetSlider()
-      try {
-        const res = await fetchCaptcha()
-        const data = res.data
-        if (!data) {
-          this.captchaId = ''
-          this.captchaImage = ''
-          return
-        }
-        this.captchaId = data.captchaId
-        this.captchaType = data.captchaType
-        this.captchaImage = data.imageBase64 || ''
-      } catch {
-        ElMessage.error('获取验证码失败')
-      }
-    },
-    resetSlider() {
-      this.sliderPercent = 0
       this.sliderOk = false
       this.form.sliderOk = false
+      this.$refs.captchaRef?.refresh()
     },
-    onSliderStart(e) {
-      if (this.sliderOk) return
-      this.sliding = true
-      this.slideStartX = e.clientX
-      this.slideStartPercent = this.sliderPercent
-      window.addEventListener('pointermove', this.onSliderMove)
-      window.addEventListener('pointerup', this.onSliderEnd)
+    onSliderVerified(ok) {
+      this.sliderOk = ok
+      this.form.sliderOk = ok
+      if (ok) this.$refs.formRef?.clearValidate('sliderOk')
     },
-    onSliderMove(e) {
-      if (!this.sliding) return
-      const track = document.querySelector('.slider-wrap')
-      const width = track?.clientWidth || 280
-      const delta = ((e.clientX - this.slideStartX) / width) * 100
-      this.sliderPercent = Math.min(100, Math.max(0, this.slideStartPercent + delta))
-    },
-    async onSliderEnd() {
-      this.sliding = false
-      window.removeEventListener('pointermove', this.onSliderMove)
-      window.removeEventListener('pointerup', this.onSliderEnd)
-      if (this.sliderPercent >= 92) {
-        this.sliderPercent = 100
-        try {
-          await verifySliderCaptcha(this.captchaId, 100)
-          this.sliderOk = true
-          this.form.sliderOk = true
-          this.$refs.formRef?.clearValidate('sliderOk')
-        } catch {
-          this.resetSlider()
-          await this.refreshCaptcha()
-        }
+    switchMode(next) {
+      this.mode = next
+      this.loginTab = 'account'
+      this.form.nickname = ''
+      this.form.confirmPassword = ''
+      this.form.captcha = ''
+      this.form.smsCode = ''
+      if (next === 'login') {
+        this.form.username = 'admin'
+        this.form.password = 'admin'
+        this.form.phone = '18888888888'
       } else {
-        this.resetSlider()
+        this.form.username = ''
+        this.form.password = ''
       }
+      this.$refs.formRef?.clearValidate()
+      this.refreshCaptcha()
     },
     async loadPageConfig() {
       try {
@@ -305,25 +346,45 @@ export default {
         if (!cfg) return
         this.captchaEnabled = !!cfg.captchaEnabled
         this.captchaType = cfg.captchaType || null
-        if (this.captchaEnabled) {
-          await this.refreshCaptcha()
-        }
+        await this.$nextTick()
+        this.$refs.formRef?.clearValidate(['captcha', 'sliderOk'])
       } catch {
         // 无配置或接口失败时不启用验证码
       }
     },
-    async handleLogin() {
+    async sendLoginSms(phone) {
+      const res = await sendSms({ phone, scene: 'LOGIN' })
+      return res.data
+    },
+    async handleSubmit() {
       const formRef = this.$refs.formRef
       if (!formRef) return
       await formRef.validate(async (valid) => {
         if (!valid) return
         this.loading = true
+        const captchaOpts = {
+          captchaId: this.captchaEnabled ? this.captchaId : undefined,
+          captchaCode:
+            this.captchaEnabled && this.captchaType === 'IMAGE' ? this.form.captcha : undefined,
+        }
         try {
-          const data = await this.userStore.login(this.form.username, this.form.password, {
-            captchaId: this.captchaEnabled ? this.captchaId : undefined,
-            captchaCode:
-              this.captchaEnabled && this.captchaType === 'IMAGE' ? this.form.captcha : undefined,
-          })
+          if (this.isRegister) {
+            await registerApi({
+              username: this.form.username,
+              password: this.form.password,
+              nickname: this.form.nickname || undefined,
+              ...captchaOpts,
+            })
+            ElMessage.success('注册成功，请登录')
+            const username = this.form.username
+            this.switchMode('login')
+            this.form.username = username
+            this.form.password = ''
+            return
+          }
+          const data = this.isSmsLogin
+            ? await this.userStore.loginBySms(this.form.phone, this.form.smsCode)
+            : await this.userStore.login(this.form.username, this.form.password, captchaOpts)
           if (data.user?.mustChangePassword) {
             ElMessage.warning('请先修改密码后再使用系统')
             this.$router.push({ path: '/profile', query: { forcePwd: '1' } })
@@ -332,7 +393,7 @@ export default {
             this.$router.push('/dashboard')
           }
         } catch {
-          if (this.captchaEnabled) {
+          if (this.captchaEnabled && !this.isSmsLogin) {
             await this.refreshCaptcha()
           }
         } finally {
@@ -740,6 +801,33 @@ body.login-no-scroll {
   color: var(--xn-muted);
 }
 
+.login-tabs {
+  margin: -4px 0 12px;
+}
+
+.login-tabs :deep(.el-tabs__header) {
+  margin-bottom: 12px;
+}
+
+.login-tabs :deep(.el-tabs__item) {
+  font-weight: 600;
+  color: var(--xn-muted);
+}
+
+.login-tabs :deep(.el-tabs__item.is-active) {
+  color: var(--xn-navy);
+}
+
+.login-tabs :deep(.el-tabs__content) {
+  display: none;
+}
+
+.sms-hint {
+  margin: -4px 0 12px;
+  font-size: 12px;
+  color: var(--xn-muted);
+}
+
 .login-form :deep(.el-form-item) {
   margin-bottom: 16px;
 }
@@ -797,94 +885,35 @@ body.login-no-scroll {
   transform: translateY(0);
 }
 
+.login-switch {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--xn-muted);
+}
+
+.login-switch-link {
+  border: none;
+  background: none;
+  padding: 0;
+  margin-left: 4px;
+  color: var(--xn-teal);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-switch-link:hover {
+  color: var(--xn-teal-bright);
+  text-decoration: underline;
+}
+
 .login-foot {
   margin-top: 16px;
   text-align: center;
   font-size: 12px;
   line-height: 1.5;
   color: #8a97a6;
-}
-
-.captcha-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-}
-
-.captcha-row .el-input {
-  flex: 1;
-}
-
-.captcha-canvas {
-  width: 110px;
-  height: 40px;
-  border-radius: 10px;
-  cursor: pointer;
-  border: 1px solid rgba(11, 42, 74, 0.12);
-  flex-shrink: 0;
-  object-fit: cover;
-}
-
-.captcha-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #eef4f6;
-  color: #909399;
-  font-size: 13px;
-}
-
-.slider-wrap {
-  position: relative;
-  width: 100%;
-  height: 42px;
-  -webkit-user-select: none;
-  user-select: none;
-  touch-action: none;
-}
-
-.slider-track {
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  background: #eef3f5;
-  overflow: hidden;
-  border: 1px solid rgba(11, 42, 74, 0.1);
-}
-
-.slider-progress {
-  height: 100%;
-  background: linear-gradient(90deg, rgba(43, 179, 176, 0.25), rgba(26, 143, 145, 0.45));
-  transition: width 0.05s linear;
-}
-
-.slider-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: #8a97a6;
-  pointer-events: none;
-}
-
-.slider-thumb {
-  position: absolute;
-  top: 1px;
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  background: #fff;
-  border: 1px solid rgba(11, 42, 74, 0.12);
-  box-shadow: 0 4px 12px rgba(7, 28, 51, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: grab;
-  color: var(--xn-teal);
-  font-weight: 600;
-  z-index: 1;
 }
 
 @media (max-height: 760px) {

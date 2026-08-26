@@ -141,9 +141,11 @@ export default {
       this.resizeObserver = new ResizeObserver(() => this.updateScrollState())
       this.resizeObserver.observe(el)
     }
+    el?.addEventListener('wheel', this.onWheel, { passive: false })
     window.addEventListener('resize', this.updateScrollState)
   },
   beforeUnmount() {
+    this.$refs.scrollRef?.removeEventListener('wheel', this.onWheel)
     this.resizeObserver?.disconnect()
     this.resizeObserver = null
     window.removeEventListener('resize', this.updateScrollState)
@@ -263,6 +265,17 @@ export default {
       const step = Math.max(160, Math.floor(el.clientWidth * 0.6))
       el.scrollBy({ left: direction * step, behavior: 'smooth' })
     },
+    onWheel(event) {
+      const el = this.$refs.scrollRef
+      if (!el || el.scrollWidth <= el.clientWidth + 1) return
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
+      if (!event.deltaY) return
+      const max = el.scrollWidth - el.clientWidth
+      const next = Math.min(max, Math.max(0, el.scrollLeft + event.deltaY))
+      if (next === el.scrollLeft) return
+      event.preventDefault()
+      el.scrollLeft = next
+    },
     scrollActiveIntoView() {
       const container = this.$refs.scrollRef
       if (!container) {
@@ -344,6 +357,7 @@ export default {
   padding: 0 10px;
   overflow-x: auto;
   overflow-y: hidden;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
 }
 

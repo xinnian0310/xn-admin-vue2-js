@@ -4,6 +4,7 @@ import {
   getApiRegistry,
   getCurrentUser,
   login as loginApi,
+  loginBySms as loginBySmsApi,
   logout as logoutApi,
   refreshToken as refreshTokenApi,
   updateCurrentUser,
@@ -77,6 +78,16 @@ const useUserStore = defineStore('user', () => {
     await useUiPreferenceStore().load()
     return res.data
   }
+  async function loginBySms(phone, code) {
+    clearSessionViews()
+    resetDynamicRoutes()
+    const res = await loginBySmsApi({ phone, code })
+    setAuth(res.data.token, res.data.user)
+    await loadRegistry()
+    startSessionGuard()
+    await useUiPreferenceStore().load()
+    return res.data
+  }
   async function refreshToken() {
     const res = await refreshTokenApi()
     token.value = res.data.token
@@ -122,6 +133,7 @@ const useUserStore = defineStore('user', () => {
     token,
     user,
     login,
+    loginBySms,
     refreshToken,
     fetchProfile,
     updateProfile,

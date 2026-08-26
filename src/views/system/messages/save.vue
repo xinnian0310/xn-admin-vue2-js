@@ -1,9 +1,14 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     :title="dialogTitle"
     width="820px"
-    destroy-on-close
+    show-fullscreen
+    :show-confirm="!readonly"
+    :confirm-loading="submitting"
+    confirm-text="保存草稿"
+    :cancel-text="readonly ? '关闭' : '取消'"
+    @confirm="handleSubmit"
     @closed="handleClosed"
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" :disabled="readonly">
@@ -57,19 +62,14 @@
         </div>
       </el-form-item>
     </el-form>
-    <template #footer>
-      <el-button @click="visible = false">{{ readonly ? '关闭' : '取消' }}</el-button>
-      <el-button v-if="!readonly" type="primary" :loading="submitting" @click="handleSubmit">
-        保存草稿
-      </el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import xnRichEditor from '@/components/xnRichEditor/xnRichEditor.vue'
 import xnUpload from '@/components/xnUpload/xnUpload.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { create, get, update } from '@/api/message'
 import { resolveAttachmentUrl } from '@/config/app'
 import { openKkFileViewPreview } from '@/utils/kk-file-view'
@@ -91,6 +91,7 @@ export default {
   components: {
     xnRichEditor,
     xnUpload,
+    xnDialog,
   },
   emits: ['success'],
   data() {

@@ -4,7 +4,12 @@
       <xnSearch :search-item="searchItems" @query-form="inquires" @reset="reset" />
     </template>
     <template #toolbar>
-      <xnButton :list-item="buttonItems" :selected="selected" @button-click="buttonClick" />
+      <xnButton
+        :list-item="buttonItems"
+        :selected="selected"
+        :export-request="handleExport"
+        @button-click="buttonClick"
+      />
     </template>
     <template #table>
       <xnTable
@@ -37,31 +42,29 @@
     </template>
   </xnPageLayout>
 
-  <el-dialog v-model="detailVisible" title="操作日志详情" width="720px" destroy-on-close>
-    <el-descriptions v-if="current" :column="1" border>
-      <el-descriptions-item label="模块">{{ current.title }}</el-descriptions-item>
-      <el-descriptions-item label="业务类型">{{
-        businessTypeLabel(current.businessType)
-      }}</el-descriptions-item>
-      <el-descriptions-item label="操作人">{{ current.operatorName || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="请求">
-        {{ current.requestMethod || '—' }} {{ current.requestUrl || '' }}
-      </el-descriptions-item>
-      <el-descriptions-item label="方法">{{ current.method || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="IP">{{ current.ip || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="耗时(ms)">{{ current.costTime ?? '—' }}</el-descriptions-item>
-      <el-descriptions-item label="状态">
-        {{ current.status === 1 ? '成功' : '失败' }}
-      </el-descriptions-item>
-      <el-descriptions-item label="时间">{{ current.operTime }}</el-descriptions-item>
-      <el-descriptions-item label="参数">
-        <pre class="log-pre">{{ current.params || '—' }}</pre>
-      </el-descriptions-item>
-      <el-descriptions-item v-if="current.errorMsg" label="错误">
-        <pre class="log-pre">{{ current.errorMsg }}</pre>
-      </el-descriptions-item>
-    </el-descriptions>
-  </el-dialog>
+  <xnDialog
+    v-model="detailVisible"
+    title="操作日志详情"
+    width="820px"
+    :show-confirm="false"
+    cancel-text="关闭"
+  >
+    <xnDesc v-if="current" :column="2" :items="detailItems" />
+    <xnCode
+      v-if="current?.params"
+      title="参数"
+      language="json"
+      :value="current.params"
+      style="margin-top: 12px"
+    />
+    <xnCode
+      v-if="current?.errorMsg"
+      title="错误"
+      language="text"
+      :value="current.errorMsg"
+      style="margin-top: 12px"
+    />
+  </xnDialog>
 </template>
 
 <script>
@@ -71,6 +74,9 @@ import xnSearch from '@/components/xnSearch/xnSearch.vue'
 import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
+import xnDesc from '@/components/xnDesc/xnDesc.vue'
+import xnCode from '@/components/xnCode/xnCode.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { batchRemove, clean, exportOperLogs, get, list, remove } from '@/api/oper-log'
 import { rangeToBeginEnd } from '@/utils/download'
@@ -96,6 +102,9 @@ export default {
     xnButton,
     xnTableActions,
     xnTable,
+    xnDialog,
+    xnDesc,
+    xnCode,
   },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/system/logs/oper')
@@ -114,6 +123,24 @@ export default {
       current: null,
       columns,
     }
+  },
+  computed: {
+    detailItems() {
+      const row = this.current
+      if (!row) return []
+      const request = [row.requestMethod, row.requestUrl].filter(Boolean).join(' ')
+      return [
+        { label: '模块', value: row.title },
+        { label: '业务类型', value: this.businessTypeLabel(row.businessType) },
+        { label: '操作人', value: row.operatorName },
+        { label: '状态', value: row.status === 1 ? '成功' : '失败' },
+        { label: '请求', value: request, span: 2, type: 'copy' },
+        { label: '方法', value: row.method, span: 2, type: 'copy' },
+        { label: 'IP', value: row.ip, type: 'copy' },
+        { label: '耗时(ms)', value: row.costTime },
+        { label: '时间', value: row.operTime, span: 2 },
+      ]
+    },
   },
   mounted() {
     this.loadData()
@@ -165,12 +192,8 @@ export default {
         await this.openDetail(this.selected[0])
       } else if (action === 'delete') await this.handleBatchDelete()
       else if (action === 'clean') await this.handleClean()
-      else if (action === 'export') await this.handleExport()
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(`确定删除「${row.title}」这条操作日志吗？`, '删除确认', {
-        type: 'warning',
-      })
       await remove(row.id)
       ElMessage.success('已删除')
       this.loadData()
@@ -201,7 +224,6 @@ export default {
     },
     async handleExport() {
       await exportOperLogs(this.listParams())
-      ElMessage.success('导出成功')
     },
     async loadData() {
       this.loading = true
@@ -226,14 +248,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.log-pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-break: break-all;
-  font-family: monospace;
-  font-size: 13px;
-  line-height: 1.55;
-}
-</style>

@@ -47,11 +47,12 @@
     </template>
   </xnPageLayout>
 
-  <el-dialog
+  <xnDialog
     v-model="detailVisible"
     :title="current?.title || '消息详情'"
     width="720px"
-    destroy-on-close
+    :show-confirm="false"
+    cancel-text="关闭"
   >
     <div v-if="current" class="message-detail">
       <div class="message-detail__meta">
@@ -82,12 +83,13 @@
       </div>
       <div class="message-detail__content xn-rich-html" v-html="contentHtml" />
     </div>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage, ElMessageBox } from 'element-plus'
 import xnPageLayout from '@/components/xnPageLayout/xnPageLayout.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import xnSearch from '@/components/xnSearch/xnSearch.vue'
 import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
@@ -111,7 +113,7 @@ const columns = [
 
 export default {
   name: 'MessagesMine',
-  components: { xnPageLayout, xnSearch, xnButton, xnTableActions, xnTable },
+  components: { xnPageLayout, xnDialog, xnSearch, xnButton, xnTableActions, xnTable },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/messages/mine')
     return { searchItems, buttonItems, tableButtonItems }
@@ -216,9 +218,6 @@ export default {
       }
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(`确定删除消息「${row.title}」吗？`, '删除确认', {
-        type: 'warning',
-      })
       await removeMine(row.id)
       ElMessage.success('删除成功')
       this.loadData()

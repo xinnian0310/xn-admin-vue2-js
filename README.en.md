@@ -17,13 +17,13 @@ Version: `1.0.0` · License: [Apache-2.0](./LICENSE) · Copyright 2026 XinNian
 
 ## Related repositories
 
-| Repository | Gitee | GitHub | Notes |
-|------|-------|--------|------|
-| `xn-admin-cloud` | [Gitee](https://gitee.com/jenning/xn-admin-cloud) | [GitHub](https://github.com/xinnian0310/xn-admin-cloud) | Backend (required) |
-| `xn-admin-vue3-ts` | [Gitee](https://gitee.com/jenning/xn-admin-vue3-ts) | [GitHub](https://github.com/xinnian0310/xn-admin-vue3-ts) | Feature baseline (TypeScript) |
-| `xn-admin-vue3-js` | [Gitee](https://gitee.com/jenning/xn-admin-vue3-js) | [GitHub](https://github.com/xinnian0310/xn-admin-vue3-js) | Vue 3 + JavaScript (Composition) |
-| `xn-admin-vue2-js` | [Gitee](https://gitee.com/jenning/xn-admin-vue2-js) | [GitHub](https://github.com/xinnian0310/xn-admin-vue2-js) | This repo |
-| `xn-admin-react-ts` | [Gitee](https://gitee.com/jenning/xn-admin-react-ts) | [GitHub](https://github.com/xinnian0310/xn-admin-react-ts) | React + TypeScript |
+| Repository          | Live                                    | Gitee                                                | GitHub                                                     | Notes                            |
+| ------------------- | --------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- | -------------------------------- |
+| `xn-admin-cloud`    | [Site](https://xinniankeji.vip)         | [Gitee](https://gitee.com/jenning/xn-admin-cloud)    | [GitHub](https://github.com/xinnian0310/xn-admin-cloud)    | Backend (required)               |
+| `xn-admin-vue3-ts`  | [Demo](https://vue3-ts.xinniankeji.vip) | [Gitee](https://gitee.com/jenning/xn-admin-vue3-ts)  | [GitHub](https://github.com/xinnian0310/xn-admin-vue3-ts)  | Feature baseline (TypeScript)    |
+| `xn-admin-vue3-js`  | [Demo](https://vue3-js.xinniankeji.vip) | [Gitee](https://gitee.com/jenning/xn-admin-vue3-js)  | [GitHub](https://github.com/xinnian0310/xn-admin-vue3-js)  | Vue 3 + JavaScript (Composition) |
+| `xn-admin-vue2-js`  | [Demo](https://vue2.xinniankeji.vip)    | [Gitee](https://gitee.com/jenning/xn-admin-vue2-js)  | [GitHub](https://github.com/xinnian0310/xn-admin-vue2-js)  | This repo                        |
+| `xn-admin-react-ts` | [Demo](https://react.xinniankeji.vip)   | [Gitee](https://gitee.com/jenning/xn-admin-react-ts) | [GitHub](https://github.com/xinnian0310/xn-admin-react-ts) | React + TypeScript               |
 
 ## Prerequisites
 
@@ -34,10 +34,10 @@ Version: `1.0.0` · License: [Apache-2.0](./LICENSE) · Copyright 2026 XinNian
 
 ## Default accounts
 
-| Username | Initial password | Notes |
-|----------|------------------|------|
-| `SuperAdmin` | `SuperAdmin` | Super admin |
-| `admin` | `admin` | Admin |
+| Username     | Initial password | Notes       |
+| ------------ | ---------------- | ----------- |
+| `SuperAdmin` | `xinnian`        | Super admin |
+| `admin`      | `admin`          | Admin       |
 
 Local development only. Change passwords after login. See [SECURITY.md](./SECURITY.md).
 
@@ -73,18 +73,20 @@ npm run ci            # lint + format:check + test + build
 
 Vue 3.5, JavaScript, **Options API** (no `<script setup>`), Vite 8, Element Plus, Pinia 4, Vue Router 5, Axios, ECharts, wangEditor, ExcelJS, ESLint, Prettier, Vitest, Husky.
 
+Typical list page: `xnPageLayout` → `xnSearch` → `xnButton` + `xnExport` → `xnTable` (+ optional `xnTreePanel`). Full catalog: [`src/components/README.md`](./src/components/README.md).
+
 ## Screenshots
 
 Same module filenames as the baseline, in [`docs/images/`](./docs/images/).
 
-| Page | Screenshot |
-|------|------------|
-| Login | ![Login](./docs/images/login.png) |
+| Page      | Screenshot                                |
+| --------- | ----------------------------------------- |
+| Login     | ![Login](./docs/images/login.png)         |
 | Dashboard | ![Dashboard](./docs/images/dashboard.png) |
-| Users | ![Users](./docs/images/users.png) |
-| Roles | ![Roles](./docs/images/roles.png) |
-| Files | ![Files](./docs/images/files.png) |
-| Jobs | ![Jobs](./docs/images/jobs.png) |
+| Users     | ![Users](./docs/images/users.png)         |
+| Roles     | ![Roles](./docs/images/roles.png)         |
+| Files     | ![Files](./docs/images/files.png)         |
+| Jobs      | ![Jobs](./docs/images/jobs.png)           |
 
 More screenshots use the same names under `docs/images/`.
 

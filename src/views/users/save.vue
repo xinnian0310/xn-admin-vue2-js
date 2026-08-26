@@ -1,9 +1,13 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     :title="dialogTitle"
     width="560px"
-    destroy-on-close
+    :show-confirm="mode !== 'view'"
+    :confirm-loading="submitting"
+    confirm-text="保存"
+    :cancel-text="mode === 'view' ? '关闭' : '取消'"
+    @confirm="handleSubmit"
     @closed="handleClosed"
   >
     <el-form
@@ -44,38 +48,20 @@
         <el-input v-model="form.phone" :disabled="sensitiveFieldsLocked" />
       </el-form-item>
       <el-form-item label="角色" prop="roleIds">
-        <el-select
+        <xnOrgSelect
           v-model="form.roleIds"
+          type="role"
           multiple
-          clearable
-          style="width: 100%"
+          :options="roleSelectOptions"
           placeholder="个人角色（可选，若单位已绑默认角色）"
-        >
-          <el-option v-for="r in availableRoles" :key="r.id" :label="r.name" :value="r.id" />
-        </el-select>
+        />
         <div class="form-tip">可与单位默认角色叠加；二者至少其一有角色即可</div>
       </el-form-item>
       <el-form-item label="单位" prop="unitId">
-        <el-tree-select
-          v-model="form.unitId"
-          :data="unitOptions"
-          :props="{ label: 'name', value: 'id', children: 'children' }"
-          check-strictly
-          clearable
-          placeholder="请选择单位"
-          style="width: 100%"
-        />
+        <xnOrgSelect v-model="form.unitId" type="unit" :tree-data="unitOptions" />
       </el-form-item>
       <el-form-item label="岗位" prop="postId">
-        <el-select
-          v-model="form.postId"
-          clearable
-          filterable
-          placeholder="请选择岗位"
-          style="width: 100%"
-        >
-          <el-option v-for="p in postOptions" :key="p.id" :label="p.name" :value="p.id" />
-        </el-select>
+        <xnOrgSelect v-model="form.postId" type="post" :options="postSelectOptions" />
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-radio-group v-model="form.status">
@@ -84,13 +70,7 @@
         </el-radio-group>
       </el-form-item>
     </el-form>
-    <template #footer>
-      <el-button @click="visible = false">{{ mode === 'view' ? '关闭' : '取消' }}</el-button>
-      <el-button v-if="mode !== 'view'" type="primary" :loading="submitting" @click="handleSubmit"
-        >保存</el-button
-      >
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
@@ -102,9 +82,12 @@ import { getOptions as getPostOptions } from '@/api/post'
 import { create, get, update } from '@/api/user'
 import { usePermission } from '@/directives/permission'
 import { saveDialogTitle } from '@/types/save'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
+import xnOrgSelect from '@/components/xnOrgSelect/xnOrgSelect.vue'
 
 export default {
   name: 'UsersSave',
+  components: { xnDialog, xnOrgSelect },
   emits: ['success'],
   setup() {
     const { isSuperAdmin, hasPermission } = usePermission()
@@ -149,6 +132,12 @@ export default {
       return this.isSuperAdmin
         ? this.roleOptions
         : this.roleOptions.filter((r) => r.code !== 'SUPER_ADMIN')
+    },
+    roleSelectOptions() {
+      return this.availableRoles.map((r) => ({ id: r.id, label: r.name }))
+    },
+    postSelectOptions() {
+      return this.postOptions.map((p) => ({ id: p.id, label: p.name }))
     },
     rules() {
       return {

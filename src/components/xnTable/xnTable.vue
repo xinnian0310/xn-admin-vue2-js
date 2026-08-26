@@ -146,6 +146,12 @@
         </template>
 
         <slot />
+
+        <template #empty>
+          <slot name="empty">
+            <xnEmpty :type="emptyType" :description="emptyDescription" size="small" />
+          </slot>
+        </template>
       </el-table>
     </div>
 
@@ -197,6 +203,7 @@ import { provide, shallowRef, markRaw } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Setting } from '@element-plus/icons-vue'
 import xnAppIcon from '@/components/xnAppIcon/xnAppIcon.vue'
+import xnEmpty from '@/components/xnEmpty/xnEmpty.vue'
 import xnLongText from '@/components/xnLongText/xnLongText.vue'
 import xnColumnSettingDialog from '@/components/xnTable/xnColumnSettingDialog.vue'
 import { getTableColumns, saveTableColumns } from '@/api/table-column'
@@ -261,7 +268,7 @@ function applyColumnSettings(defaults, settings) {
 export default {
   name: 'xnTable',
   inheritAttrs: false,
-  components: { xnAppIcon, xnLongText, xnColumnSettingDialog },
+  components: { xnAppIcon, xnEmpty, xnLongText, xnColumnSettingDialog },
   props: {
     data: { required: false },
     columns: { type: Array, required: false, default: () => [] },
@@ -286,6 +293,8 @@ export default {
     autoPageSize: { type: Boolean, required: false, default: true },
     autoPageSizeMin: { type: Number, required: false, default: 5 },
     autoPageSizeMax: { type: Number, required: false, default: 200 },
+    emptyType: { type: String, required: false, default: 'data' },
+    emptyDescription: { type: String, required: false, default: undefined },
   },
   emits: [
     'update:page',
@@ -650,15 +659,17 @@ export default {
         }
       }
       const api = this.requireApi()
-      const message =
-        targets.length === 1
-          ? `确定删除${this.entityName}「${this.rowName(targets[0])}」吗？`
-          : `确定删除选中的 ${targets.length} 条${this.entityName}吗？`
-      await ElMessageBox.confirm(message, '删除确认', {
-        type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
-      })
+      if (row == null) {
+        const message =
+          targets.length === 1
+            ? `确定删除${this.entityName}「${this.rowName(targets[0])}」吗？`
+            : `确定删除选中的 ${targets.length} 条${this.entityName}吗？`
+        await ElMessageBox.confirm(message, '删除确认', {
+          type: 'warning',
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+        })
+      }
       const ids = targets.map((t) => this.rowId(t))
       if (ids.length > 1 && typeof api.batchRemove === 'function') {
         await api.batchRemove(ids)

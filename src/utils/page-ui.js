@@ -9,6 +9,8 @@ function mapSearchItems(items) {
     clearable: item.clearable,
     multiple: item.multiple,
     options: item.options,
+    dictType: item.dictType,
+    level: item.level,
   }))
 }
 function mapButtonItems(items) {

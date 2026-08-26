@@ -1,9 +1,10 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     title="代码生成"
     width="720px"
-    destroy-on-close
+    :show-confirm="false"
+    show-fullscreen
     @closed="handleClosed"
   >
     <template v-if="!result">
@@ -103,15 +104,17 @@
         <el-button type="primary" @click="downloadZip">下载 ZIP</el-button>
       </template>
     </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import { generate } from '@/api/route'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 
 export default {
   name: 'RoutesCodegen',
+  components: { xnDialog },
   data() {
     return {
       visible: false,

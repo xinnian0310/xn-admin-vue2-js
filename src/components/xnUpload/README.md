@@ -27,10 +27,10 @@
 
 | 名称              | 类型                        | 默认值          | 说明                                    |
 | ----------------- | --------------------------- | --------------- | --------------------------------------- |
-| `chunkSize`       | `number`                    | `8 * 1024²`     | 分片大小，MinIO 要求除末片外 ≥ 5MiB     |
+| `chunkSize`       | `number`                    | `50 * 1024²`    | 分片大小，MinIO 要求除末片外 ≥ 5MiB     |
 | `concurrency`     | `number`                    | `3`             | 单文件内同时上传的分片数                |
 | `fileConcurrency` | `number`                    | `3`             | 同时上传的文件数                        |
-| `maxRetries`      | `number`                    | `3`             | 单片自动重试次数（不含首次）            |
+| `maxRetries`      | `number`                    | `5`             | 单片自动重试次数（不含首次）            |
 | `retryDelay`      | `number`                    | `1000`          | 首次重试等待毫秒数，后续指数退避 + 抖动 |
 | `chunkTimeout`    | `number`                    | `300000`        | 单片请求超时毫秒数，`0` 不限制          |
 | `sliceThreshold`  | `number`                    | `50 * 1024²`    | 小于此值直传                            |
@@ -97,9 +97,9 @@
 
 ```vue
 <XnUpload
-  :chunk-size="8 * 1024 * 1024"
+  :chunk-size="50 * 1024 * 1024"
   :concurrency="3"
-  :max-retries="3"
+  :max-retries="5"
   :max-size="10 * 1024 * 1024 * 1024"
   :accept="['video/*']"
   @success="handleSuccess"

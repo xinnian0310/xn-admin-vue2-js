@@ -4,7 +4,12 @@
       <xnSearch :search-item="searchItems" @query-form="inquires" @reset="reset" />
     </template>
     <template #toolbar>
-      <xnButton :list-item="buttonItems" :selected="selected" @button-click="buttonClick" />
+      <xnButton
+        :list-item="buttonItems"
+        :selected="selected"
+        :export-request="handleExport"
+        @button-click="buttonClick"
+      />
     </template>
     <template #table>
       <xnTable
@@ -105,12 +110,8 @@ export default {
     async buttonClick(action) {
       if (action === 'delete') await this.handleBatchDelete()
       else if (action === 'clean') await this.handleClean()
-      else if (action === 'export') await this.handleExport()
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(`确定删除用户「${row.username}」的这条登录日志吗？`, '删除确认', {
-        type: 'warning',
-      })
       await remove(row.id)
       ElMessage.success('已删除')
       this.loadData()
@@ -141,7 +142,6 @@ export default {
     },
     async handleExport() {
       await exportLoginLogs(this.listParams())
-      ElMessage.success('导出成功')
     },
     async loadData() {
       this.loading = true

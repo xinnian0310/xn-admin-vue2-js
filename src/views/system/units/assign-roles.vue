@@ -1,9 +1,11 @@
 <template>
-  <el-dialog
+  <xnDialog
     v-model="visible"
     title="分配角色"
     width="480px"
-    destroy-on-close
+    :confirm-loading="submitting"
+    confirm-text="保存"
+    @confirm="handleSubmit"
     @closed="handleClosed"
   >
     <div v-if="unitName" class="assign-tip">单位：{{ unitName }}</div>
@@ -18,21 +20,19 @@
       <el-option v-for="r in availableRoles" :key="r.id" :label="r.name" :value="r.id" />
     </el-select>
     <div class="form-tip">单位下用户将自动继承所选角色，无需再逐个分配</div>
-    <template #footer>
-      <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">保存</el-button>
-    </template>
-  </el-dialog>
+  </xnDialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import { assignRoles, get as getUnit } from '@/api/unit'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
 import { getOptions as getRoleOptions } from '@/api/role'
 import { usePermission } from '@/directives/permission'
 
 export default {
   name: 'UnitsAssignRoles',
+  components: { xnDialog },
   emits: ['success'],
   setup() {
     const { isSuperAdmin } = usePermission()

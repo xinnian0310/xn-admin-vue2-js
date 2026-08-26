@@ -13,8 +13,10 @@ import { useUserStore } from '@/stores/user'
 import { useThemeStore } from '@/stores/theme'
 import { useUiPreferenceStore } from '@/stores/uiPreference'
 import { startSessionGuard } from '@/utils/session-guard'
+import { printConsoleBanner } from '@/utils/console-banner'
 import './style.css'
 applyAppConfig()
+printConsoleBanner()
 async function bootstrapRemoteConfig() {
   try {
     const res = await getPublicConfig()

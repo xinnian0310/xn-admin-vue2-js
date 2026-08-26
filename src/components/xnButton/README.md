@@ -20,14 +20,15 @@
 
 ### Props
 
-| 名称               | 类型               | 默认值         | 说明                   |
-| ------------------ | ------------------ | -------------- | ---------------------- |
-| `listItem`         | `ButtonListItem[]` | 默认 CRUD 按钮 | 传 `[]` 可隐藏全部按钮 |
-| `selected`         | `unknown[]`        | `[]`           | 当前表格选中行         |
-| `createPermission` | `string`           | —              | 新增权限码             |
-| `updatePermission` | `string`           | —              | 编辑权限码             |
-| `viewPermission`   | `string`           | —              | 查看权限码             |
-| `deletePermission` | `string`           | —              | 删除权限码             |
+| 名称               | 类型                  | 默认值         | 说明                        |
+| ------------------ | --------------------- | -------------- | --------------------------- |
+| `listItem`         | `ButtonListItem[]`    | 默认 CRUD 按钮 | 传 `[]` 可隐藏全部按钮      |
+| `selected`         | `unknown[]`           | `[]`           | 当前表格选中行              |
+| `createPermission` | `string`              | —              | 新增权限码                  |
+| `updatePermission` | `string`              | —              | 编辑权限码                  |
+| `viewPermission`   | `string`              | —              | 查看权限码                  |
+| `deletePermission` | `string`              | —              | 删除权限码                  |
+| `exportRequest`    | `() => Promise<void>` | —              | 传入后「导出」走 `xnExport` |
 
 ### Emits
 
@@ -47,11 +48,12 @@
 
 ### Props
 
-| 名称       | 类型                                 | 默认值 | 说明                     |
-| ---------- | ------------------------------------ | ------ | ------------------------ |
-| `items`    | `ButtonListItem[]`                   | `[]`   | 行操作配置               |
-| `row`      | `Record<string, any>`                | `{}`   | 当前行                   |
-| `disabled` | `(action, row) => boolean \| string` | —      | 返回 `true`/字符串则禁用 |
+| 名称             | 类型                                 | 默认值       | 说明                      |
+| ---------------- | ------------------------------------ | ------------ | ------------------------- |
+| `items`          | `ButtonListItem[]`                   | `[]`         | 行操作配置                |
+| `row`            | `Record<string, any>`                | `{}`         | 当前行                    |
+| `disabled`       | `(action, row) => boolean \| string` | —            | 返回 `true`/字符串则禁用  |
+| `confirmActions` | `string[]`                           | `['delete']` | 这些动作用 `xnPopconfirm` |
 
 ### Emits
 
@@ -59,7 +61,7 @@
 | ------------- | ---------------------------------------------- |
 | `actionClick` | `{ action: string; row: Record<string, any> }` |
 
-行内为文字链按钮，不展示图标。
+行内为文字链按钮，不展示图标。`delete` 默认包 `xnPopconfirm`，页面行删除不再弹 MessageBox。批量删除仍用 MessageBox。
 
 ---
 

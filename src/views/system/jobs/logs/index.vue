@@ -4,7 +4,12 @@
       <xnSearch :search-item="searchItems" @query-form="inquires" @reset="reset" />
     </template>
     <template #toolbar>
-      <xnButton :list-item="buttonItems" :selected="selected" @button-click="buttonClick" />
+      <xnButton
+        :list-item="buttonItems"
+        :selected="selected"
+        :export-request="handleExport"
+        @button-click="buttonClick"
+      />
     </template>
     <template #table>
       <xnTable
@@ -34,23 +39,30 @@
     </template>
   </xnPageLayout>
 
-  <el-dialog v-model="detailVisible" title="任务日志详情" width="720px" destroy-on-close>
-    <el-descriptions v-if="current" :column="1" border>
-      <el-descriptions-item label="任务">{{ current.jobName || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="标识">{{ current.jobKey || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="调用目标">{{ current.invokeTarget || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="状态">{{ jobStatusLabel(current.status) }}</el-descriptions-item>
-      <el-descriptions-item label="开始">{{ current.startTime || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="结束">{{ current.endTime || '—' }}</el-descriptions-item>
-      <el-descriptions-item label="耗时(ms)">{{ current.costMs ?? '—' }}</el-descriptions-item>
-      <el-descriptions-item label="信息">
-        <pre class="log-pre">{{ current.message || '—' }}</pre>
-      </el-descriptions-item>
-      <el-descriptions-item v-if="current.exceptionInfo" label="异常">
-        <pre class="log-pre">{{ current.exceptionInfo }}</pre>
-      </el-descriptions-item>
-    </el-descriptions>
-  </el-dialog>
+  <xnDialog
+    v-model="detailVisible"
+    title="任务日志详情"
+    width="820px"
+    :show-confirm="false"
+    cancel-text="关闭"
+  >
+    <xnDesc v-if="current" :column="2" :items="detailItems" />
+    <xnCode
+      v-if="current && current.message"
+      title="信息"
+      language="text"
+      :value="current.message"
+      style="margin-top: 12px"
+    />
+    <xnCode
+      v-if="current && current.exceptionInfo"
+      title="异常"
+      language="text"
+      :value="current.exceptionInfo"
+      max-height="320px"
+      style="margin-top: 12px"
+    />
+  </xnDialog>
 </template>
 
 <script>
@@ -60,6 +72,9 @@ import xnSearch from '@/components/xnSearch/xnSearch.vue'
 import xnButton from '@/components/xnButton/xnButton.vue'
 import xnTableActions from '@/components/xnButton/xnTableActions.vue'
 import xnTable from '@/components/xnTable/xnTable.vue'
+import xnDialog from '@/components/xnDialog/xnDialog.vue'
+import xnDesc from '@/components/xnDesc/xnDesc.vue'
+import xnCode from '@/components/xnCode/xnCode.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import {
   batchRemoveJobLogs,
@@ -90,6 +105,9 @@ export default {
     xnButton,
     xnTableActions,
     xnTable,
+    xnDialog,
+    xnDesc,
+    xnCode,
   },
   setup() {
     const { searchItems, buttonItems, tableButtonItems } = usePageUi('/system/jobs/logs')
@@ -108,6 +126,21 @@ export default {
       current: null,
       columns,
     }
+  },
+  computed: {
+    detailItems() {
+      const row = this.current
+      if (!row) return []
+      return [
+        { label: '任务', value: row.jobName },
+        { label: '状态', value: this.jobStatusLabel(row.status) },
+        { label: '标识', value: row.jobKey, type: 'copy' },
+        { label: '耗时(ms)', value: row.costMs },
+        { label: '调用目标', value: row.invokeTarget, span: 2, type: 'copy' },
+        { label: '开始', value: row.startTime },
+        { label: '结束', value: row.endTime },
+      ]
+    },
   },
   watch: {
     '$route.query.jobId'() {
@@ -168,14 +201,8 @@ export default {
         await this.openDetail(this.selected[0])
       } else if (action === 'delete') await this.handleBatchDelete()
       else if (action === 'clean') await this.handleClean()
-      else if (action === 'export') await this.handleExport()
     },
     async handleDelete(row) {
-      await ElMessageBox.confirm(
-        `确定删除任务「${row.jobName || row.id}」的这条日志吗？`,
-        '删除确认',
-        { type: 'warning' },
-      )
       await removeJobLog(row.id)
       ElMessage.success('已删除')
       this.loadData()
@@ -206,7 +233,6 @@ export default {
     },
     async handleExport() {
       await exportJobLogs(this.listParams())
-      ElMessage.success('导出成功')
     },
     async loadData() {
       this.loading = true
@@ -231,16 +257,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.log-pre {
-  margin: 0;
-  max-height: 240px;
-  overflow: auto;
-  white-space: pre-wrap;
-  word-break: break-all;
-  font-family: monospace;
-  font-size: 12px;
-  line-height: 1.5;
-}
-</style>

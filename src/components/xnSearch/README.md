@@ -36,7 +36,9 @@
 
 ## 字段类型（`SearchItem.type`）
 
-`input` | `number` | `select` | `date` | `datetime` | `daterange`
+`input` | `number` | `select` | `date` | `datetime` | `daterange` | `dict` | `region`
+
+`dict` 使用 `xnDictSelect`（`dictType` / `options`）；`region` 使用 `xnRegion`（`level`）。
 
 ## 相关类型
 

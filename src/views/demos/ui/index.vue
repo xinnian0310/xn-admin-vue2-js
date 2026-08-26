@@ -474,7 +474,7 @@
               </el-space>
             </el-col>
             <el-col :span="8">
-              <el-watermark content="xn-admin">
+              <el-watermark content="心念科技">
                 <div class="demo-watermark">水印区域</div>
               </el-watermark>
             </el-col>

@@ -103,6 +103,12 @@ const menus = [
             path: '/system/units',
             permission: 'menu:system:unit',
           },
+          {
+            id: 'post',
+            title: '\u5C97\u4F4D\u7BA1\u7406',
+            path: '/system/posts',
+            permission: 'menu:system:post',
+          },
         ],
       },
       {
@@ -134,6 +140,12 @@ const menus = [
             path: '/system/routes',
             permission: 'menu:system:route',
           },
+          {
+            id: 'security',
+            title: '\u5B89\u5168\u7B56\u7565',
+            path: '/system/security',
+            permission: 'menu:system:security',
+          },
         ],
       },
       {
@@ -152,6 +164,12 @@ const menus = [
             title: '\u7AD9\u5185\u4FE1',
             path: '/system/messages',
             permission: 'menu:system:message',
+          },
+          {
+            id: 'site-contact',
+            title: '\u8054\u7CFB\u4E0E\u6350\u8D60',
+            path: '/system/site-contact',
+            permission: 'menu:system:site-contact',
           },
         ],
       },
@@ -191,11 +209,6 @@ const menus = [
             path: '/system/remote-storage',
             permission: 'menu:system:remote-storage',
           },
-          {
-            id: 'site-contact',
-            title: '\u8054\u7CFB\u4E0E\u6350\u8D60',
-            path: '/system/site-contact',
-          },
         ],
       },
       {
@@ -216,10 +229,28 @@ const menus = [
             permission: 'menu:system:job',
           },
           {
+            id: 'job-logs',
+            title: '\u4EFB\u52A1\u65E5\u5FD7',
+            path: '/system/jobs/logs',
+            permission: 'menu:system:job-log',
+          },
+          {
             id: 'api-docs',
             title: '\u63A5\u53E3\u6587\u6863',
             path: '/system/api-docs',
             permission: 'menu:system:api-docs',
+          },
+          {
+            id: 'codegen',
+            title: '\u4EE3\u7801\u751F\u6210',
+            path: '/system/codegen',
+            permission: 'menu:system:codegen',
+          },
+          {
+            id: 'recycle',
+            title: '\u56DE\u6536\u7AD9',
+            path: '/system/recycle',
+            permission: 'menu:system:recycle',
           },
         ],
       },

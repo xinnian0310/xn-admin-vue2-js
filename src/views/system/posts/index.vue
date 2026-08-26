@@ -12,7 +12,12 @@
       <xnSearch :search-item="searchItems" @query-form="inquires" @reset="reset" />
     </template>
     <template #toolbar>
-      <xnButton :list-item="buttonItems" :selected="selected" @button-click="buttonClick" />
+      <xnButton
+        :list-item="buttonItems"
+        :selected="selected"
+        :export-request="handleExport"
+        @button-click="buttonClick"
+      />
     </template>
     <template #table>
       <xnTable
@@ -84,7 +89,6 @@ import XnImportDialog from '@/components/xnImport/xnImportDialog.vue'
 import PostSave from './save.vue'
 import { usePageUi } from '@/composables/usePageUi'
 import { batchRemove, exportPosts, importPosts, list, remove } from '@/api/post'
-import { showCaughtError } from '@/utils/request'
 
 const importColumns = [
   { key: 'code', title: '岗位编码', required: true, example: 'engineer', width: 14 },
@@ -180,21 +184,17 @@ export default {
     async buttonClick(action) {
       if (action === 'add') this.openSave('add')
       else if (action === 'import') this.$refs.importRef?.open()
-      else if (action === 'export') {
-        try {
-          await exportPosts({
-            keyword: String(this.queryForm.FuzzyWord ?? '').trim() || undefined,
-            status: this.queryForm.status,
-          })
-          ElMessage.success('导出成功')
-        } catch (e) {
-          showCaughtError(e, '导出失败')
-        }
-      } else if (action === 'edit' && this.selected.length === 1)
+      else if (action === 'edit' && this.selected.length === 1)
         this.openSave('edit', this.selected[0].id)
       else if (action === 'view' && this.selected.length === 1)
         this.openSave('view', this.selected[0].id)
       else if (action === 'delete') this.handleBatchDelete()
+    },
+    async handleExport() {
+      await exportPosts({
+        keyword: String(this.queryForm.FuzzyWord ?? '').trim() || undefined,
+        status: this.queryForm.status,
+      })
     },
     async handleImport(rows) {
       const payload = rows.map((row) => ({
@@ -240,7 +240,6 @@ export default {
         ElMessage.warning('内置岗位不可删除')
         return
       }
-      await ElMessageBox.confirm(`确定删除岗位「${row.name}」吗？`, '删除确认', { type: 'warning' })
       await remove(row.id)
       ElMessage.success('删除成功')
       this.loadData()
