@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./docs/preview-login.gif" alt="Login to dashboard" width="880" />
+</p>
+
 # xn-admin-vue2-js
 
 [English](README.en.md) | [简体中文](README.md)
@@ -11,7 +15,7 @@ The folder name `vue2-js` means “the second JavaScript style”, **not Vue 2**
 [![Commercial](https://img.shields.io/badge/Commercial-Allowed-brightgreen.svg)](./LICENSE)
 [![Personal](https://img.shields.io/badge/Personal-Allowed-brightgreen.svg)](./LICENSE)
 
-Version: `1.0.0` · License: [Apache-2.0](./LICENSE) · Copyright 2026 XinNian
+Version: `1.1.0` · License: [Apache-2.0](./LICENSE) · Copyright 2026 XinNian
 
 **Live demo:** https://vue2.xinniankeji.vip · Website: https://xinniankeji.vip
 

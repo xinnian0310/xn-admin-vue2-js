@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./docs/preview-login.gif" alt="登录到工作台" width="880" />
+</p>
+
 # xn-admin-vue2-js
 
 [简体中文](README.md) | [English](README.en.md)
@@ -15,7 +19,7 @@ xn-admin-vue2-js 是「心念后台」的 JavaScript 管理端，采用 Vue 3 Op
 
 本仓库**独立开源**（Apache-2.0，**可商用、可自用**）。功能与基准仓库 **xn-admin-vue3-ts** 对齐，共用微服务后端 **xn-admin-cloud**（网关 `8088`）。
 
-版本：`1.0.0` · 许可证：[Apache-2.0](./LICENSE) · **可商用 / 可自用** · Copyright 2026 心念
+版本：`1.1.0` · 许可证：[Apache-2.0](./LICENSE) · **可商用 / 可自用** · Copyright 2026 心念
 
 **在线演示：** https://vue2.xinniankeji.vip · 官网：https://xinniankeji.vip
 
