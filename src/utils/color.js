@@ -49,7 +49,19 @@ function relativeLuminance(hex) {
 function isLightColor(hex) {
   return relativeLuminance(hex) > 0.55
 }
-function buildPrimaryScale(primary) {
+function buildPrimaryScale(primary, mode = 'light') {
+  if (mode === 'dark') {
+    return {
+      primary,
+      'light-3': mixHex(primary, '#000000', 0.2),
+      'light-5': mixHex(primary, '#000000', 0.4),
+      'light-7': mixHex(primary, '#000000', 0.6),
+      'light-8': mixHex(primary, '#000000', 0.7),
+      'light-9': mixHex(primary, '#000000', 0.8),
+      'dark-2': mixHex(primary, '#ffffff', 0.2),
+      rgb: hexToRgbCss(primary),
+    }
+  }
   return {
     primary,
     'light-3': mixHex(primary, '#ffffff', 0.3),

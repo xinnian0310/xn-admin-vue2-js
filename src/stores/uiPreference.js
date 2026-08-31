@@ -34,6 +34,17 @@ const useUiPreferenceStore = defineStore('uiPreference', () => {
     preference.value = null
     applyUserUiPreference(null)
   }
+  /** 登录时恢复全局布局/字号；尽量同步清云端个人偏好 */
+  async function restoreDefaults() {
+    preference.value = null
+    loaded.value = true
+    applyUserUiPreference(null)
+    try {
+      await resetUserUiConfig()
+    } catch {
+      /* 本机已恢复默认，云端清偏好失败不影响展示 */
+    }
+  }
   function clearLocal() {
     preference.value = null
     loaded.value = false
@@ -48,6 +59,7 @@ const useUiPreferenceStore = defineStore('uiPreference', () => {
     load,
     save,
     reset,
+    restoreDefaults,
     clearLocal,
   }
 })

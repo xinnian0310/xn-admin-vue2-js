@@ -286,6 +286,8 @@ export default {
   padding: 0;
   height: auto !important;
   position: relative;
+  --el-input-focus-border-color: var(--app-accent, var(--el-color-primary));
+  --el-select-border-color-hover: var(--app-accent, var(--el-color-primary));
 }
 
 .xn-search__form {

@@ -305,7 +305,7 @@ function applyLayoutTheme(colors, options = {}) {
   root.style.setProperty('--app-header-bg', h.bg)
   root.style.setProperty('--app-header-text', h.text)
   root.style.setProperty('--app-header-border', h.border)
-  const scale = buildPrimaryScale(colors.primary)
+  const scale = buildPrimaryScale(colors.primary, dark ? 'dark' : 'light')
   root.style.setProperty('--app-color-primary', scale.primary)
   root.style.setProperty('--app-color-primary-light-3', scale['light-3'])
   root.style.setProperty('--app-color-primary-light-5', scale['light-5'])
@@ -322,6 +322,13 @@ function applyLayoutTheme(colors, options = {}) {
   root.style.setProperty('--el-color-primary-light-9', scale['light-9'])
   root.style.setProperty('--el-color-primary-dark-2', scale['dark-2'])
   root.style.setProperty('--el-color-primary-rgb', scale.rgb)
+  // 强调色：亮色用主色；暗色混入中性灰，避免深底上仍是霓虹蓝/高饱和主色
+  root.style.setProperty(
+    '--app-accent',
+    dark ? mixHex(colors.primary, '#a3a6ad', 0.42) : scale.primary,
+  )
+  root.style.setProperty('--app-accent-bg', scale['light-9'])
+  root.style.setProperty('--app-accent-border', dark ? scale['light-8'] : scale['light-5'])
   if (dark) {
     root.style.setProperty('--app-page-bg', '#0a0a0a')
     root.style.setProperty('--app-main-bg', '#141414')
@@ -331,16 +338,16 @@ function applyLayoutTheme(colors, options = {}) {
     root.style.setProperty('--app-tags-border', '#414243')
     root.style.setProperty('--app-tags-item-bg', '#1d1e1f')
     root.style.setProperty('--app-tags-item-text', '#a3a6ad')
-    root.style.setProperty('--app-tags-item-hover-bg', mixHex(colors.primary, '#000000', 0.55))
+    root.style.setProperty('--app-tags-item-hover-bg', scale['light-8'])
     root.style.setProperty('--app-tags-item-active-bg', scale.primary)
     root.style.setProperty('--app-tags-item-active-text', '#ffffff')
     root.style.setProperty('--app-tags-scrollbar', '#4c4d4f')
     root.style.setProperty('--app-border-color', '#414243')
     root.style.setProperty('--app-text-muted', '#a3a6ad')
     root.style.setProperty('--app-text-primary', '#e5eaf3')
-    root.style.setProperty('--app-surface-soft', mixHex(colors.primary, '#000000', 0.7))
-    root.style.setProperty('--app-surface-soft-border', mixHex(colors.primary, '#000000', 0.4))
-    root.style.setProperty('--app-card-hover-border', mixHex(colors.primary, '#000000', 0.25))
+    root.style.setProperty('--app-surface-soft', scale['light-9'])
+    root.style.setProperty('--app-surface-soft-border', scale['light-8'])
+    root.style.setProperty('--app-card-hover-border', scale['light-7'])
   } else {
     root.style.setProperty('--app-page-bg', '#f5f7fa')
     root.style.setProperty('--app-main-bg', '#f5f7fa')
@@ -361,11 +368,14 @@ function applyLayoutTheme(colors, options = {}) {
     root.style.setProperty('--app-surface-soft-border', scale['light-5'])
     root.style.setProperty('--app-card-hover-border', mixHex(colors.primary, '#ffffff', 0.45))
   }
-  // 页签选中态：预设 / 个性化用实心主色；外观模式跟随侧栏强调色（更贴合亮 / 暗观感）
+  // 页签选中态：预设 / 个性化用实心主色；外观模式跟随侧栏强调色（暗色不要用白描边）
   if (options.source === 'appearance') {
     root.style.setProperty('--app-tags-item-active-bg', colors.sidebar.activeBg)
     root.style.setProperty('--app-tags-item-active-text', colors.sidebar.active)
-    root.style.setProperty('--app-tags-item-active-border', colors.sidebar.active)
+    root.style.setProperty(
+      '--app-tags-item-active-border',
+      dark ? `rgba(${scale.rgb}, 0.4)` : colors.sidebar.active,
+    )
   } else {
     root.style.setProperty('--app-tags-item-active-border', scale.primary)
   }

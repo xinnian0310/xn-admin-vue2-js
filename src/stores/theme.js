@@ -132,6 +132,24 @@ const useThemeStore = defineStore('theme', () => {
     persistSource('custom')
     applyCurrent()
   }
+  /** 清掉本机主题缓存，回到内置默认（演示账号登录时用） */
+  function resetToDefault() {
+    source.value = DEFAULT_THEME_SOURCE
+    themeId.value = DEFAULT_THEME_ID
+    appearance.value = 'light'
+    customParts.value = { ...DEFAULT_CUSTOM_PARTS }
+    mainBgImage.value = null
+    try {
+      localStorage.removeItem(STORAGE_SOURCE)
+      localStorage.removeItem(STORAGE_THEME_ID)
+      localStorage.removeItem(STORAGE_APPEARANCE)
+      localStorage.removeItem(STORAGE_CUSTOM)
+      localStorage.removeItem(STORAGE_MAIN_BG)
+    } catch {
+      /* ignore */
+    }
+    applyCurrent()
+  }
   function openDialog() {
     dialogVisible.value = true
   }
@@ -154,6 +172,7 @@ const useThemeStore = defineStore('theme', () => {
     setCustomParts,
     setMainBgImage,
     applyCustom,
+    resetToDefault,
     openDialog,
     closeDialog,
   }

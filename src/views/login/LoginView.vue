@@ -426,9 +426,22 @@ body.login-no-scroll {
   --xn-accent-soft: rgba(193, 122, 69, 0.18);
   --xn-ink: #12263a;
   --xn-muted: #5b6b7c;
+  /* 登录页是独立浅色卡片，不跟随后台 html.dark / color-scheme */
+  color-scheme: light;
+  --el-text-color-primary: var(--xn-ink);
+  --el-text-color-regular: var(--xn-ink);
+  --el-text-color-secondary: var(--xn-muted);
+  --el-text-color-placeholder: #8a97a6;
+  --el-text-color-disabled: #c0c4cc;
+  --el-input-text-color: var(--xn-ink);
+  --el-input-placeholder-color: #8a97a6;
+  --el-input-bg-color: #ffffff;
+  --el-fill-color-blank: #ffffff;
+  --el-bg-color: #ffffff;
 
   position: relative;
   width: 100%;
+  /* 100vh 兜底旧浏览器；100dvh 按移动端动态视口，避免地址栏造成溢出 */
   height: 100vh;
   height: 100dvh;
   max-height: 100vh;
@@ -842,6 +855,29 @@ body.login-no-scroll {
     background 0.2s ease;
 }
 
+.login-form :deep(.el-input__inner) {
+  color: var(--xn-ink);
+  -webkit-text-fill-color: var(--xn-ink);
+}
+
+.login-form :deep(.el-input__inner::placeholder) {
+  color: #8a97a6;
+  -webkit-text-fill-color: #8a97a6;
+}
+
+.login-form :deep(.el-input__prefix),
+.login-form :deep(.el-input__suffix) {
+  color: var(--xn-muted);
+}
+
+.login-form :deep(input:-webkit-autofill),
+.login-form :deep(input:-webkit-autofill:hover),
+.login-form :deep(input:-webkit-autofill:focus) {
+  -webkit-text-fill-color: var(--xn-ink);
+  caret-color: var(--xn-ink);
+  transition: background-color 9999s ease-out;
+}
+
 .login-form :deep(.el-input__wrapper:hover) {
   box-shadow: 0 0 0 1px rgba(26, 143, 145, 0.35) inset;
 }
@@ -914,6 +950,112 @@ body.login-no-scroll {
   font-size: 12px;
   line-height: 1.5;
   color: #8a97a6;
+}
+
+/* 外观-暗色：跟后台炭黑表面 / 主题主色对齐，右侧不再用独立浅色卡片 */
+html.dark .login-page {
+  color-scheme: dark;
+  --xn-navy: #e5eaf3;
+  --xn-navy-deep: #141414;
+  --xn-teal: var(--app-color-primary, #409eff);
+  --xn-teal-bright: var(--el-color-primary-dark-2, #66b1ff);
+  --xn-accent: var(--app-color-primary, #409eff);
+  --xn-accent-soft: rgba(var(--app-color-primary-rgb, 64, 158, 255), 0.2);
+  --xn-ink: #e5eaf3;
+  --xn-muted: #a3a6ad;
+  --el-text-color-primary: #e5eaf3;
+  --el-text-color-regular: #e5eaf3;
+  --el-text-color-secondary: #a3a6ad;
+  --el-text-color-placeholder: #8d9095;
+  --el-input-text-color: #e5eaf3;
+  --el-input-placeholder-color: #8d9095;
+  --el-input-bg-color: #262727;
+  --el-fill-color-blank: #262727;
+  --el-bg-color: #1d1e1f;
+  color: var(--xn-ink);
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 12% 18%,
+      rgba(var(--app-color-primary-rgb, 64, 158, 255), 0.16),
+      transparent 55%
+    ),
+    radial-gradient(ellipse 70% 50% at 88% 82%, rgba(64, 158, 255, 0.06), transparent 50%),
+    linear-gradient(145deg, #0a0a0a 0%, #141414 48%, #1d1e1f 100%);
+}
+
+html.dark .login-page .login-shell {
+  background: #141414;
+  border-color: #414243;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+html.dark .login-page .login-brand {
+  color: #e5eaf3;
+  background: linear-gradient(160deg, #141414 0%, #1d1e1f 100%);
+}
+
+html.dark .login-page .brand-glow {
+  background: radial-gradient(
+    circle,
+    rgba(var(--app-color-primary-rgb, 64, 158, 255), 0.22),
+    transparent 70%
+  );
+}
+
+html.dark .login-page .brand-logo-plate {
+  background: #1d1e1f;
+  box-shadow: 0 0 0 1px #414243;
+}
+
+html.dark .login-page .brand-slogan {
+  background: linear-gradient(90deg, #e5eaf3 0%, var(--xn-teal) 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+html.dark .login-page .feature-icon {
+  color: var(--xn-teal);
+  background: rgba(var(--app-color-primary-rgb, 64, 158, 255), 0.14);
+  border-color: rgba(var(--app-color-primary-rgb, 64, 158, 255), 0.28);
+}
+
+html.dark .login-page .login-panel {
+  background: #1d1e1f;
+}
+
+html.dark .login-page .login-form :deep(.el-input__wrapper) {
+  background: #262727;
+  box-shadow: 0 0 0 1px #414243 inset;
+}
+
+html.dark .login-page .login-form :deep(.el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px var(--xn-teal) inset;
+}
+
+html.dark .login-page .login-form :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--xn-teal) inset,
+    0 0 0 3px rgba(var(--app-color-primary-rgb, 64, 158, 255), 0.18) !important;
+}
+
+html.dark .login-page .login-form :deep(.el-input__inner::placeholder) {
+  color: #8d9095;
+  -webkit-text-fill-color: #8d9095;
+}
+
+html.dark .login-page .login-btn {
+  background: var(--xn-teal);
+  box-shadow: 0 12px 28px rgba(var(--app-color-primary-rgb, 64, 158, 255), 0.28);
+}
+
+html.dark .login-page .login-btn:hover,
+html.dark .login-page .login-btn:focus {
+  background: var(--xn-teal-bright);
+  box-shadow: 0 14px 32px rgba(var(--app-color-primary-rgb, 64, 158, 255), 0.36);
+}
+
+html.dark .login-page .login-foot {
+  color: #a3a6ad;
 }
 
 @media (max-height: 760px) {

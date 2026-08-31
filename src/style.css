@@ -106,6 +106,9 @@ html.dark .page-card {
   --app-color-primary-light-9: #ecf5ff;
   --app-color-primary-dark-2: #337ecc;
   --app-color-primary-rgb: 64, 158, 255;
+  --app-accent: #409eff;
+  --app-accent-bg: #ecf5ff;
+  --app-accent-border: #a0cfff;
 
   /* tags-view */
   --app-tags-bg: #ffffff;
@@ -161,10 +164,218 @@ html.dark .el-pagination {
   --el-disabled-bg-color: var(--app-fill-color);
 }
 
+html.dark .el-pagination.is-background .el-pager li.is-active {
+  background-color: var(--app-btn-primary, var(--el-color-primary-light-5));
+}
+
 html.dark .el-input__wrapper,
 html.dark .el-textarea__inner,
 html.dark .el-select__wrapper {
   background-color: var(--app-fill-color);
+}
+
+/* 登录页暗色：输入底跟随后台 fill，避免被全局规则盖成白色 */
+html.dark .login-page .el-input__wrapper,
+html.dark .login-page .el-textarea__inner,
+html.dark .login-page .el-select__wrapper {
+  background-color: var(--app-fill-color, #262727);
+}
+
+/* 暗色按钮 / 链接 / 页签：相对当前语义色压饱和，避免深底霓虹。JS 会按主色覆盖 --app-accent* */
+html.dark {
+  --app-btn-primary: color-mix(in srgb, var(--el-color-primary) 68%, black);
+  --app-btn-success: color-mix(in srgb, var(--el-color-success) 68%, black);
+  --app-btn-warning: color-mix(in srgb, var(--el-color-warning) 68%, black);
+  --app-btn-danger: color-mix(in srgb, var(--el-color-danger) 68%, black);
+  --app-btn-info: color-mix(in srgb, var(--el-color-info) 68%, black);
+  --app-link-primary: color-mix(
+    in srgb,
+    var(--el-color-primary) 58%,
+    var(--app-text-muted, #a3a6ad)
+  );
+  --app-link-success: color-mix(
+    in srgb,
+    var(--el-color-success) 58%,
+    var(--app-text-muted, #a3a6ad)
+  );
+  --app-link-warning: color-mix(
+    in srgb,
+    var(--el-color-warning) 58%,
+    var(--app-text-muted, #a3a6ad)
+  );
+  --app-link-danger: color-mix(in srgb, var(--el-color-danger) 58%, var(--app-text-muted, #a3a6ad));
+}
+
+/* 内容区主色标签（不含页签）：plain 默认描边仍是主色，改为当前主题强调面 */
+html.dark .el-tag.el-tag--primary:not(.tags-view__item),
+html.dark .el-tag.el-tag--primary.is-plain:not(.tags-view__item) {
+  --el-tag-bg-color: var(--app-accent-bg);
+  --el-tag-border-color: var(--app-accent-border);
+  --el-tag-text-color: var(--app-accent);
+  --el-tag-hover-color: var(--app-color-primary);
+  background-color: var(--app-accent-bg);
+  border-color: var(--app-accent-border);
+  color: var(--app-accent);
+}
+
+/* 页签选中：走 --app-tags-item-active-*（外观暗色=侧栏半透明强调），不要被内容标签规则盖成浅底 */
+html.dark .tags-view .tags-view__item.is-active {
+  --el-tag-bg-color: var(--app-tags-item-active-bg);
+  --el-tag-border-color: var(--app-tags-item-active-border, var(--app-tags-item-active-bg));
+  --el-tag-text-color: var(--app-tags-item-active-text);
+  --el-tag-hover-color: var(--app-accent);
+  background-color: var(--app-tags-item-active-bg);
+  border-color: var(--app-tags-item-active-border, var(--app-tags-item-active-bg));
+  color: var(--app-tags-item-active-text);
+}
+
+html.dark .tags-view .tags-view__item:not(.is-active) {
+  --el-tag-bg-color: var(--app-tags-item-bg);
+  --el-tag-border-color: var(--app-tags-border);
+  --el-tag-text-color: var(--app-tags-item-text);
+  background-color: var(--app-tags-item-bg);
+  border-color: var(--app-tags-border);
+  color: var(--app-tags-item-text);
+}
+
+html.dark .tags-view .tags-view__item:not(.is-active):hover {
+  --el-tag-bg-color: var(--app-accent-bg);
+  --el-tag-border-color: var(--app-accent-border);
+  --el-tag-text-color: var(--app-accent);
+  background-color: var(--app-accent-bg);
+  border-color: var(--app-accent-border);
+  color: var(--app-accent);
+}
+
+html.dark .tags-view__arrow:hover:not(:disabled) {
+  color: var(--app-accent);
+  background: var(--app-accent-bg);
+}
+
+/* 实心按钮：查询 / 新增 / 重置 / 删除 / 导入 / 导出。不改登录页主按钮 */
+html.dark .el-button.el-button--primary:not(.is-link):not(.is-text):not(.is-plain):not(.login-btn) {
+  --el-button-bg-color: var(--app-btn-primary);
+  --el-button-border-color: var(--app-btn-primary);
+  --el-button-hover-bg-color: var(--el-color-primary);
+  --el-button-hover-border-color: var(--el-color-primary);
+  --el-button-active-bg-color: var(--el-color-primary-light-3);
+  --el-button-active-border-color: var(--el-color-primary-light-3);
+  --el-button-text-color: #ffffff;
+  --el-button-disabled-bg-color: var(--app-btn-primary);
+  --el-button-disabled-border-color: var(--app-btn-primary);
+  background-color: var(--app-btn-primary);
+  border-color: var(--app-btn-primary);
+  color: #fff;
+}
+
+html.dark .el-button.el-button--success:not(.is-link):not(.is-text):not(.is-plain) {
+  --el-button-bg-color: var(--app-btn-success);
+  --el-button-border-color: var(--app-btn-success);
+  --el-button-disabled-bg-color: var(--app-btn-success);
+  --el-button-disabled-border-color: var(--app-btn-success);
+  background-color: var(--app-btn-success);
+  border-color: var(--app-btn-success);
+  color: #fff;
+}
+
+html.dark .el-button.el-button--warning:not(.is-link):not(.is-text):not(.is-plain) {
+  --el-button-bg-color: var(--app-btn-warning);
+  --el-button-border-color: var(--app-btn-warning);
+  --el-button-disabled-bg-color: var(--app-btn-warning);
+  --el-button-disabled-border-color: var(--app-btn-warning);
+  background-color: var(--app-btn-warning);
+  border-color: var(--app-btn-warning);
+  color: #fff;
+}
+
+html.dark .el-button.el-button--danger:not(.is-link):not(.is-text):not(.is-plain) {
+  --el-button-bg-color: var(--app-btn-danger);
+  --el-button-border-color: var(--app-btn-danger);
+  --el-button-disabled-bg-color: var(--app-btn-danger);
+  --el-button-disabled-border-color: var(--app-btn-danger);
+  background-color: var(--app-btn-danger);
+  border-color: var(--app-btn-danger);
+  color: #fff;
+}
+
+html.dark .el-button.el-button--info:not(.is-link):not(.is-text):not(.is-plain) {
+  --el-button-bg-color: var(--app-btn-info);
+  --el-button-border-color: var(--app-btn-info);
+  background-color: var(--app-btn-info);
+  border-color: var(--app-btn-info);
+  color: #fff;
+}
+
+html.dark
+  .el-button.el-button--primary:not(.is-link):not(.is-text):not(.is-plain):not(.login-btn):hover,
+html.dark
+  .el-button.el-button--primary:not(.is-link):not(.is-text):not(.is-plain):not(.login-btn):focus {
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+  color: #fff;
+}
+
+html.dark .el-button.el-button--success:not(.is-link):not(.is-text):not(.is-plain):hover {
+  background-color: var(--el-color-success);
+  border-color: var(--el-color-success);
+}
+
+html.dark .el-button.el-button--warning:not(.is-link):not(.is-text):not(.is-plain):hover {
+  background-color: var(--el-color-warning);
+  border-color: var(--el-color-warning);
+}
+
+html.dark .el-button.el-button--danger:not(.is-link):not(.is-text):not(.is-plain):hover {
+  background-color: var(--el-color-danger);
+  border-color: var(--el-color-danger);
+}
+
+html.dark .el-button.el-button--primary.is-plain:not(.login-btn) {
+  --el-button-bg-color: var(--app-accent-bg);
+  --el-button-text-color: var(--app-accent);
+  --el-button-border-color: var(--app-accent-border);
+  --el-button-hover-bg-color: var(--app-accent-bg);
+  --el-button-hover-text-color: var(--el-color-primary);
+  --el-button-hover-border-color: var(--app-accent);
+  background-color: var(--app-accent-bg);
+  border-color: var(--app-accent-border);
+  color: var(--app-accent);
+}
+
+/* 表格 / 卡片切换：选中态与实心主按钮同一套压饱和色 */
+html.dark .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  --el-radio-button-checked-bg-color: var(--app-btn-primary);
+  --el-radio-button-checked-border-color: var(--app-btn-primary);
+  background-color: var(--app-btn-primary);
+  border-color: var(--app-btn-primary);
+  box-shadow: -1px 0 0 0 var(--app-btn-primary);
+  color: #fff;
+}
+
+/* 操作列链接：查看 / 编辑 / 删除 */
+html.dark .el-button.is-link.el-button--primary {
+  --el-button-text-color: var(--app-accent, var(--app-link-primary));
+  --el-button-hover-link-text-color: var(--el-color-primary-dark-2);
+  color: var(--app-accent, var(--app-link-primary));
+}
+
+html.dark .el-button.is-link.el-button--primary:hover {
+  color: var(--el-color-primary-dark-2);
+}
+
+html.dark .el-button.is-link.el-button--success {
+  --el-button-text-color: var(--app-link-success);
+  color: var(--app-link-success);
+}
+
+html.dark .el-button.is-link.el-button--warning {
+  --el-button-text-color: var(--app-link-warning);
+  color: var(--app-link-warning);
+}
+
+html.dark .el-button.is-link.el-button--danger {
+  --el-button-text-color: var(--app-link-danger);
+  color: var(--app-link-danger);
 }
 
 /* 卡片列表：hover 跟随主题主色 */

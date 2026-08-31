@@ -417,7 +417,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--app-color-primary);
+  color: var(--app-accent, var(--app-color-primary));
   background: var(--app-card-bg, #fff);
   border: 1px solid var(--app-surface-soft-border);
 }
@@ -470,7 +470,7 @@ export default {
   margin-left: 2px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--app-color-primary);
+  color: var(--app-accent, var(--app-color-primary));
   font-variant-numeric: tabular-nums;
 }
 
@@ -587,6 +587,17 @@ export default {
   padding: 4px 8px 0 4px;
 }
 
+.home-timeline :deep(.el-timeline-item__node--primary) {
+  background-color: var(--app-accent, var(--el-color-primary));
+  border-color: var(--app-accent, var(--el-color-primary));
+}
+
+html.dark .home :deep(.el-tag.el-tag--primary) {
+  --el-tag-text-color: var(--app-accent, var(--el-color-primary));
+  --el-tag-border-color: var(--app-accent-border, var(--el-color-primary-light-5));
+  --el-tag-bg-color: var(--app-accent-bg, var(--el-color-primary-light-9));
+}
+
 .log-line {
   display: flex;
   align-items: flex-start;
@@ -629,7 +640,7 @@ export default {
 
 .contact-item__icon {
   margin-top: 2px;
-  color: var(--app-color-primary);
+  color: var(--app-accent, var(--app-color-primary));
 }
 
 .contact-item__label {
@@ -647,7 +658,7 @@ export default {
 }
 
 .contact-item__value--link {
-  color: var(--app-color-primary);
+  color: var(--app-accent, var(--app-color-primary));
 }
 
 .contact-item__groups {
@@ -679,9 +690,9 @@ export default {
 }
 
 .contact-item__qq:hover:not(:disabled) {
-  border-color: var(--el-color-primary-light-5);
-  background: var(--el-color-primary-light-9);
-  color: var(--el-color-primary);
+  border-color: var(--app-accent-border, var(--el-color-primary-light-5));
+  background: var(--app-accent-bg, var(--el-color-primary-light-9));
+  color: var(--app-accent, var(--el-color-primary));
 }
 
 .contact-item__qq:disabled {

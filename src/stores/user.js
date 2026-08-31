@@ -17,6 +17,7 @@ import { normalizeDateTimes } from '@/utils/datetime'
 import { useNoticeStore } from '@/stores/notice'
 import { startSessionGuard, stopSessionGuard } from '@/utils/session-guard'
 import { useUiPreferenceStore } from '@/stores/uiPreference'
+import { useThemeStore } from '@/stores/theme'
 const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
   const user = ref(getStoredUser())
@@ -63,6 +64,15 @@ const useUserStore = defineStore('user', () => {
       )
     }
   }
+  /** admin 为共用演示账号：每次登录恢复默认主题色与布局字号 */
+  async function applyUiAfterAuth(username) {
+    if (username === 'admin') {
+      useThemeStore().resetToDefault()
+      await useUiPreferenceStore().restoreDefaults()
+      return
+    }
+    await useUiPreferenceStore().load()
+  }
   async function login(username, password, captcha) {
     clearSessionViews()
     resetDynamicRoutes()
@@ -75,7 +85,7 @@ const useUserStore = defineStore('user', () => {
     setAuth(res.data.token, res.data.user)
     await loadRegistry()
     startSessionGuard()
-    await useUiPreferenceStore().load()
+    await applyUiAfterAuth(res.data.user?.username)
     return res.data
   }
   async function loginBySms(phone, code) {
@@ -85,7 +95,7 @@ const useUserStore = defineStore('user', () => {
     setAuth(res.data.token, res.data.user)
     await loadRegistry()
     startSessionGuard()
-    await useUiPreferenceStore().load()
+    await applyUiAfterAuth(res.data.user?.username)
     return res.data
   }
   async function refreshToken() {
