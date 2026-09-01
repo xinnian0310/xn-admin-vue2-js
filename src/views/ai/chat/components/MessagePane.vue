@@ -1,119 +1,130 @@
 <template>
-  <div ref="bodyRef" class="ai-chat__body" @scroll="onScroll" @click="onCopyCode">
-    <div v-if="!hasModel" class="ai-chat__guide">
-      <el-empty :description="unavailableMessage || '暂无可用模型，请先在「模型」中添加'">
-        <el-button type="primary" @click="$router.push('/ai/models')">去添加我的模型</el-button>
-      </el-empty>
-    </div>
-    <div v-else-if="!currentId || (!visibleMessages.length && !streaming)" class="ai-chat__guide">
-      <el-empty description="开始一段新对话，或点下面的示例">
-        <div class="ai-chat__hints">
-          <el-tag
-            v-for="q in hints"
-            :key="q"
-            effect="plain"
-            class="is-clickable"
-            @click="$emit('hint', q)"
-          >
-            {{ q }}
-          </el-tag>
-        </div>
-      </el-empty>
-    </div>
-    <template v-else>
-      <el-button
-        v-if="hasMore"
-        text
-        class="ai-chat__more"
-        :loading="loadingMore"
-        @click="$emit('loadMore')"
-      >
-        加载更早的消息
-      </el-button>
-      <article
-        v-for="msg in visibleMessages"
-        :key="msg.id"
-        class="ai-msg"
-        :class="`is-${msg.role.toLowerCase()}`"
-      >
-        <el-avatar
-          v-if="msg.role !== 'USER'"
-          class="ai-msg__avatar is-assistant"
-          :size="36"
-          :src="assistantAvatarSrc(msg)"
+  <div class="ai-chat__pane">
+    <div ref="bodyRef" class="ai-chat__body" @scroll="onScroll" @click="onCopyCode">
+      <div v-if="!hasModel" class="ai-chat__guide">
+        <el-empty :description="unavailableMessage || '暂无可用模型，请先在「模型」中添加'">
+          <el-button type="primary" @click="$router.push('/ai/models')">去添加我的模型</el-button>
+        </el-empty>
+      </div>
+      <div v-else-if="!currentId || (!visibleMessages.length && !streaming)" class="ai-chat__guide">
+        <el-empty description="开始一段新对话，或点下面的示例">
+          <div class="ai-chat__hints">
+            <el-tag
+              v-for="q in hints"
+              :key="q"
+              effect="plain"
+              class="is-clickable"
+              @click="$emit('hint', q)"
+            >
+              {{ q }}
+            </el-tag>
+          </div>
+        </el-empty>
+      </div>
+      <template v-else>
+        <el-button
+          v-if="hasMore"
+          text
+          class="ai-chat__more"
+          :loading="loadingMore"
+          @click="$emit('loadMore')"
         >
-          {{ assistantAvatarText(msg) }}
-        </el-avatar>
-        <div class="ai-msg__main">
-          <div class="ai-msg__meta">
-            <span>{{ msg.role === 'USER' ? userName : chatModelLabel(msg.modelSnapshot) }}</span>
-            <span v-if="formatChatTime(msg.createdAt)" class="ai-msg__time">{{
-              formatChatTime(msg.createdAt)
-            }}</span>
-            <span v-if="msg.status === 'STOPPED'" class="is-muted">已停止</span>
-            <span v-else-if="msg.status === 'FAILED'" class="is-danger">{{ failText(msg) }}</span>
-            <span v-else-if="msg.status === 'STREAMING'" class="is-muted">
-              {{ streaming ? '生成中…' : '已中断' }}
-            </span>
-            <span v-if="versionsOf(msg).length > 1" class="ai-msg__ver">
-              <el-button link size="small" @click="$emit('shiftVersion', msg, -1)"
-                >上一版</el-button
+          加载更早的消息
+        </el-button>
+        <article
+          v-for="msg in visibleMessages"
+          :key="msg.id"
+          class="ai-msg"
+          :class="`is-${msg.role.toLowerCase()}`"
+        >
+          <el-avatar
+            v-if="msg.role !== 'USER'"
+            class="ai-msg__avatar is-assistant"
+            :size="36"
+            :src="assistantAvatarSrc(msg)"
+          >
+            {{ assistantAvatarText(msg) }}
+          </el-avatar>
+          <div class="ai-msg__main">
+            <div class="ai-msg__meta">
+              <span>{{ msg.role === 'USER' ? userName : chatModelLabel(msg.modelSnapshot) }}</span>
+              <span v-if="formatChatTime(msg.createdAt)" class="ai-msg__time">{{
+                formatChatTime(msg.createdAt)
+              }}</span>
+              <span v-if="msg.status === 'STOPPED'" class="is-muted">已停止</span>
+              <span v-else-if="msg.status === 'FAILED'" class="is-danger">{{ failText(msg) }}</span>
+              <span v-else-if="msg.status === 'STREAMING'" class="is-muted">
+                {{ streaming ? '生成中…' : '已中断' }}
+              </span>
+              <span v-if="versionsOf(msg).length > 1" class="ai-msg__ver">
+                <el-button link size="small" @click="$emit('shiftVersion', msg, -1)"
+                  >上一版</el-button
+                >
+                {{ versionIndex(msg) + 1 }}/{{ versionsOf(msg).length }}
+                <el-button link size="small" @click="$emit('shiftVersion', msg, 1)"
+                  >下一版</el-button
+                >
+              </span>
+            </div>
+            <div v-if="msg.role === 'ASSISTANT'" class="ai-msg__bubble ai-msg__md">
+              <details v-if="thinkingOf(msg)" class="ai-msg__think">
+                <summary>
+                  {{
+                    streaming && msg.status === 'STREAMING' && !answerOf(msg)
+                      ? '思考中…'
+                      : '深度思考'
+                  }}
+                </summary>
+                <pre class="ai-msg__think-body">{{ thinkingOf(msg) }}</pre>
+              </details>
+              <div v-if="answerOf(msg)" v-html="renderMarkdown(answerOf(msg))" />
+            </div>
+            <div v-else class="ai-msg__bubble ai-msg__plain">{{ msg.content }}</div>
+            <div class="ai-msg__ops">
+              <el-button link size="small" @click="$emit('copy', copyTextOf(msg))">复制</el-button>
+              <el-button
+                v-if="msg.role === 'USER' && !streaming"
+                link
+                size="small"
+                @click="$emit('edit', msg)"
               >
-              {{ versionIndex(msg) + 1 }}/{{ versionsOf(msg).length }}
-              <el-button link size="small" @click="$emit('shiftVersion', msg, 1)">下一版</el-button>
-            </span>
+                编辑重发
+              </el-button>
+              <el-button
+                v-if="canRegenerate(msg)"
+                link
+                size="small"
+                :disabled="streaming"
+                @click="$emit('regenerate', msg)"
+              >
+                重新生成
+              </el-button>
+            </div>
           </div>
-          <div v-if="msg.role === 'ASSISTANT'" class="ai-msg__bubble ai-msg__md">
-            <details v-if="thinkingOf(msg)" class="ai-msg__think">
-              <summary>
-                {{
-                  streaming && msg.status === 'STREAMING' && !answerOf(msg) ? '思考中…' : '深度思考'
-                }}
-              </summary>
-              <pre class="ai-msg__think-body">{{ thinkingOf(msg) }}</pre>
-            </details>
-            <div v-if="answerOf(msg)" v-html="renderMarkdown(answerOf(msg))" />
-          </div>
-          <div v-else class="ai-msg__bubble ai-msg__plain">{{ msg.content }}</div>
-          <div class="ai-msg__ops">
-            <el-button link size="small" @click="$emit('copy', copyTextOf(msg))">复制</el-button>
-            <el-button
-              v-if="msg.role === 'USER' && !streaming"
-              link
-              size="small"
-              @click="$emit('edit', msg)"
-            >
-              编辑重发
-            </el-button>
-            <el-button
-              v-if="canRegenerate(msg)"
-              link
-              size="small"
-              :disabled="streaming"
-              @click="$emit('regenerate', msg)"
-            >
-              重新生成
-            </el-button>
-          </div>
-        </div>
-        <el-avatar v-if="msg.role === 'USER'" class="ai-msg__avatar" :size="36" :src="userAvatar">
-          {{ userAvatarText }}
-        </el-avatar>
-      </article>
-    </template>
+          <el-avatar v-if="msg.role === 'USER'" class="ai-msg__avatar" :size="36" :src="userAvatar">
+            {{ userAvatarText }}
+          </el-avatar>
+        </article>
+      </template>
+    </div>
     <el-button
-      v-if="showJump"
       class="ai-chat__jump"
+      :class="{ 'is-on': showJump }"
       type="primary"
-      round
-      @click="scrollToBottom(true)"
+      circle
+      title="回到底部"
+      aria-label="回到底部"
+      :aria-hidden="!showJump"
+      :tabindex="showJump ? 0 : -1"
+      @click="scrollToBottom(true, true)"
     >
-      回到底部
+      <el-icon><ArrowDown /></el-icon>
     </el-button>
   </div>
 </template>
 
 <script>
+import { ArrowDown } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { renderMarkdown, splitThink } from '@/utils/ai-markdown'
 import { aiErrorText } from '@/utils/ai-errors'
@@ -123,6 +134,7 @@ import { chatModelLabel } from '@/utils/ai-model-cascader'
 
 export default {
   name: 'AiChatMessagePane',
+  components: { ArrowDown },
   emits: ['hint', 'loadMore', 'copy', 'edit', 'regenerate', 'shiftVersion'],
   props: {
     hasModel: { type: Boolean, required: true },
@@ -144,6 +156,8 @@ export default {
     return {
       follow: true,
       showJump: false,
+      jumping: false,
+      jumpTimer: 0,
     }
   },
   computed: {
@@ -156,6 +170,9 @@ export default {
     userAvatarText() {
       return this.userName.charAt(0).toUpperCase()
     },
+  },
+  beforeUnmount() {
+    window.clearTimeout(this.jumpTimer)
   },
   methods: {
     formatChatTime,
@@ -197,23 +214,51 @@ export default {
       const vis = this.visibleMessages
       return vis.length > 0 && vis[vis.length - 1].id === msg.id
     },
+    nearBottom(el) {
+      return el.scrollHeight - el.scrollTop - el.clientHeight <= 80
+    },
     onScroll() {
       const el = this.$refs.bodyRef
       if (!el) return
-      const distance = el.scrollHeight - el.scrollTop - el.clientHeight
-      if (distance > 80) {
-        this.follow = false
-        this.showJump = true
-      } else {
+      if (this.jumping) {
+        if (this.nearBottom(el)) {
+          this.jumping = false
+          window.clearTimeout(this.jumpTimer)
+          this.follow = true
+          this.showJump = false
+        }
+        return
+      }
+      if (this.nearBottom(el)) {
         this.follow = true
         this.showJump = false
+      } else {
+        this.follow = false
+        this.showJump = true
       }
     },
-    scrollToBottom(force) {
+    scrollToBottom(force, smooth = false) {
       const el = this.$refs.bodyRef
       if (!el) return
       if (!force && !this.follow) return
-      el.scrollTop = el.scrollHeight
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (smooth && !reduceMotion) {
+        this.jumping = true
+        this.follow = true
+        this.showJump = false
+        el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+        window.clearTimeout(this.jumpTimer)
+        this.jumpTimer = window.setTimeout(() => {
+          this.jumping = false
+          const pane = this.$refs.bodyRef
+          if (!pane) return
+          const atBottom = this.nearBottom(pane)
+          this.follow = atBottom
+          this.showJump = !atBottom
+        }, 700)
+        return
+      }
+      el.scrollTo({ top: el.scrollHeight, behavior: 'auto' })
       this.showJump = false
     },
     stick() {
@@ -237,11 +282,18 @@ export default {
 </script>
 
 <style scoped>
-.ai-chat__body {
+.ai-chat__pane {
   position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ai-chat__body {
   flex: 1;
   overflow: auto;
-  padding: 16px 20px 48px;
+  padding: 16px 20px 24px;
 }
 .ai-chat__guide {
   height: 100%;
@@ -395,10 +447,27 @@ export default {
   color: var(--el-text-color-secondary);
 }
 .ai-chat__jump {
-  position: sticky;
-  bottom: 8px;
+  position: absolute;
+  bottom: -8px;
   left: 50%;
-  transform: translateX(-50%);
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(8px) scale(0.86);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
+}
+.ai-chat__jump.is-on {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ai-chat__jump {
+    transition: none;
+  }
 }
 .is-clickable {
   cursor: pointer;
