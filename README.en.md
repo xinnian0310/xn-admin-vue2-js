@@ -87,6 +87,7 @@ Same module filenames as the baseline, in [`docs/images/`](./docs/images/).
 | --------- | ----------------------------------------- |
 | Login     | ![Login](./docs/images/login.png)         |
 | Dashboard | ![Dashboard](./docs/images/dashboard.png) |
+| AI chat   | ![AI chat](./docs/images/ai-chat.png)     |
 | Users     | ![Users](./docs/images/users.png)         |
 | Roles     | ![Roles](./docs/images/roles.png)         |
 | Files     | ![Files](./docs/images/files.png)         |

@@ -1,6 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { getAuthMenus } from '@/api/auth'
+const RETIRED_MENU_PATHS = new Set(['/ai/models/trial'])
+function pruneRetiredRoutes(routes) {
+  return routes
+    .filter((route) => !RETIRED_MENU_PATHS.has(route.path || ''))
+    .map((route) => ({
+      ...route,
+      children: route.children?.length ? pruneRetiredRoutes(route.children) : route.children,
+    }))
+}
 function routeToMenu(route) {
   return {
     id: String(route.id),
@@ -37,8 +46,8 @@ const useMenuStore = defineStore('menu', () => {
     }
     fetchPromise = (async () => {
       const res = await getAuthMenus()
-      sysRoutes.value = res.data
-      menus.value = res.data.map(routeToMenu)
+      sysRoutes.value = pruneRetiredRoutes(res.data)
+      menus.value = sysRoutes.value.map(routeToMenu)
       menuLoadFailed.value = false
     })().finally(() => {
       fetchPromise = null

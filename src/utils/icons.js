@@ -27,6 +27,12 @@ function parseIcon(value) {
   }
   return { type: 'element', value: raw, name: raw }
 }
+/** 厂商 Logo 等：http(s)、站内路径或 data URL 才按图片渲染 */
+function isImageSrc(value) {
+  if (!value?.trim()) return false
+  const raw = value.trim()
+  return /^(https?:\/\/|\/|data:image\/)/i.test(raw)
+}
 function resolveElementIcon(name) {
   if (!name) return void 0
   const comp = elementIconMap[name]
@@ -86,6 +92,7 @@ export {
   buildIconValue,
   getSvgRaw,
   elementIconMap as iconMap,
+  isImageSrc,
   listElementIconNames,
   listSvgIconNames,
   parseIcon,
